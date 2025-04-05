@@ -50,7 +50,7 @@ const particles = document.querySelector('.particles');
                     document.getElementById('successMessage').classList.remove('show');
                     document.getElementById('createBtn').innerHTML = 'Create Profile';
                     document.getElementById('username').value = '';
-                }, 3000);
+                }, 30000);
             }, 1500);
         });
         function redirectToDashboard() {
