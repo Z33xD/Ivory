@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rewards & Progress</title>
+  <link rel="stylesheet" href="rewards.css">
+</head>
+<body>
+  <div class="window">
+    <h2>🏆 Monthly Rewards</h2>
+
+    <div class="section">
+      <h3>💸 Budget Progress</h3>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 65%">65%</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🌱 Savings Goal</h3>
+      <div class="plant-container">
+        <div class="soil"></div>
+        <div class="sprout" style="height: 50%"></div>
+        <div class="leaves"></div>
+      </div>
+      <p class="goal-text">50% of your savings goal achieved!</p>
+    </div>
+
+    <div class="button-container">
+      <button onclick="goToDashboard()">🏠 Return to Dashboard</button>
+    </div>
+  </div>
+
+  <script>
+    function goToDashboard() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
