@@ -1,40 +1,51 @@
 const ctx = document.getElementById('expenseChart').getContext('2d');
-let expenseChart;
+        let expenseChart;
 
 // API Configuration
-const API_BASE_URL = 'https://my.api.mockaroo.com/expenditures_and_savings.json'; // Replace with your actual API base URL
+const API_CONFIG = {
+    MOCKAROO_API_KEY: 'c7c0b1a0', // Mockaroo API key
+    MOCKAROO_BASE_URL: 'https://my.api.mockaroo.com',
+    BACKEND_BASE_URL: 'http://localhost:5000',
+    ENDPOINTS: {
+        USER_PROFILE: '/api/get_user_profile',
+        GENERATE_PROFILE: '/api/generate_profile',
+        RECENT_TRANSACTIONS: '/api/get_recent_transactions',
+        CHAT: '/api/chat'
+    },
+    USE_MOCK_DATA: true // Set to true to use mock data instead of API calls
+};
 
 // Chart configuration
-const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: {
-            position: 'bottom',
-            labels: {
-                padding: 20,
-                font: {
-                    size: 12
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Monthly Expenses',
+                    font: {
+                        size: 18
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 20
+                    }
                 }
             }
-        },
-        title: {
-            display: true,
-            text: 'Monthly Expenses',
-            font: {
-                size: 18
-            },
-            padding: {
-                top: 10,
-                bottom: 20
-            }
-        }
-    }
-};
+        };
 
 // Initialize chart with empty data
 function initializeChart() {
-    expenseChart = new Chart(ctx, {
+            expenseChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: [],
@@ -53,8 +64,8 @@ function initializeChart() {
                 borderWidth: 1
             }]
         },
-        options: chartOptions
-    });
+                options: chartOptions
+            });
 }
 
 // Function to update chart with transaction data
@@ -155,70 +166,112 @@ function getAuthToken() {
     return localStorage.getItem('token');
 }
 
-// Function to make authenticated API calls
-async function fetchWithAuth(endpoint, options = {}) {
-    const token = getAuthToken();
-    if (!token) {
-        console.warn('No authentication token found, proceeding without authentication');
-    }
-
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-    
-    // Add token to headers if available
-    if (token) {
-        defaultOptions.headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-    
+// Helper function to make authenticated API calls
+async function fetchWithAuth(url, options = {}) {
     try {
-        const response = await fetch(fullUrl, { ...defaultOptions, ...options });
+        // If USE_MOCK_DATA is true, return mock data instead of making API calls
+        if (API_CONFIG.USE_MOCK_DATA) {
+            console.log('Using mock data instead of API call');
+            if (url.includes('get_user_profile')) {
+                return generateMockProfile();
+            } else if (url.includes('expenditures_and_savings')) {
+                return generateFallbackData();
+            }
+            return null;
+        }
+
+        const token = getAuthToken();
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Add Authorization header if token exists
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        // For Mockaroo API, add the API key as a query parameter
+        if (url.includes('mockaroo.com')) {
+            const separator = url.includes('?') ? '&' : '?';
+            url = `${url}${separator}key=${API_CONFIG.MOCKAROO_API_KEY}`;
+        }
+
+        // For backend API calls, prepend the base URL
+        if (!url.startsWith('http')) {
+            url = `${API_CONFIG.BACKEND_BASE_URL}${url}`;
+        }
+
+        console.log('Fetching from:', url);
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+
         if (!response.ok) {
+            // If it's a Mockaroo API call and we get 401, it's likely due to rate limiting
+            if (url.includes('mockaroo.com') && response.status === 401) {
+                console.warn('Mockaroo API rate limit reached, using fallback data');
+                return generateFallbackData();
+            }
             throw new Error(`API call failed: ${response.status} - ${response.statusText}`);
         }
-        return response.json();
+
+        return await response.json();
     } catch (error) {
-        console.error(`Error fetching from ${fullUrl}:`, error);
+        console.error('Error in fetchWithAuth:', error);
+        // Return mock data on any error
+        if (url.includes('get_user_profile')) {
+            return generateMockProfile();
+        } else if (url.includes('expenditures_and_savings')) {
+            return generateFallbackData();
+        }
         throw error;
     }
 }
 
-// Function to update recent transactions
-async function updateRecentTransactions() {
-    try {
-        const transactionsList = document.getElementById('transactionsList');
-        if (!transactionsList) return;
-
-        // Show loading state
-        transactionsList.innerHTML = '<div class="loading">Loading transactions...</div>';
-
-        // Get recent transactions from API
-        const recentTransactions = await fetchWithAuth('/get_recent_transactions');
-        
-        // Clear existing transactions
-        transactionsList.innerHTML = '';
-        
-        // Add new transactions
-        if (Array.isArray(recentTransactions) && recentTransactions.length > 0) {
-            recentTransactions
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .forEach(transaction => {
-                    transactionsList.appendChild(createTransactionElement(transaction));
-                });
-        } else {
-            transactionsList.innerHTML = '<div class="no-data">No recent transactions found</div>';
+// Function to generate mock profile data
+function generateMockProfile() {
+    const mockProfile = {
+        username: localStorage.getItem('username') || 'User',
+        income: 40000,
+        savings_goal: 10000,
+        expenses: {
+            groceries: 8000,
+            transport: 3000,
+            eating_out: 4000,
+            entertainment: 2000,
+            utilities: 5000,
+            healthcare: 2000,
+            education: 3000,
+            miscellaneous: 1000
         }
-    } catch (error) {
-        console.error('Error updating recent transactions:', error);
-        const transactionsList = document.getElementById('transactionsList');
-        if (transactionsList) {
-            transactionsList.innerHTML = '<div class="error">Failed to load transactions. Try again later.</div>';
-        }
+    };
+    
+    // Store in localStorage for caching
+    localStorage.setItem('profileData', JSON.stringify(mockProfile));
+    return mockProfile;
+}
+
+// Fallback data generator for when Mockaroo API fails
+function generateFallbackData() {
+    const categories = ['Food', 'Transportation', 'Entertainment', 'Utilities', 'Shopping'];
+    const transactions = [];
+    const now = new Date();
+    
+    for (let i = 0; i < 5; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        
+        transactions.push({
+            date: date.toISOString().split('T')[0],
+            amount: (Math.random() * 100 + 10).toFixed(2),
+            category: categories[Math.floor(Math.random() * categories.length)],
+            description: `Transaction ${i + 1}`
+        });
     }
+    
+    return transactions;
 }
 
 // Function to fetch all user data from API
@@ -228,8 +281,15 @@ async function fetchUserData() {
         document.getElementById('needsValue').textContent = 'Loading...';
         document.getElementById('wantsValue').textContent = 'Loading...';
         
+        // Try to get cached data first
+        const cachedData = localStorage.getItem('profileData');
+        if (cachedData) {
+            console.log('Using cached profile data');
+            return JSON.parse(cachedData);
+        }
+        
         // Fetch user profile data from API
-        const profileData = await fetchWithAuth('/get_user_profile');
+        const profileData = await fetchWithAuth(API_CONFIG.ENDPOINTS.USER_PROFILE);
         
         // Store in localStorage for caching
         if (profileData) {
@@ -239,15 +299,7 @@ async function fetchUserData() {
         return profileData;
     } catch (error) {
         console.error('Error fetching user data:', error);
-        
-        // If API fails, try to get cached data from localStorage
-        const cachedData = localStorage.getItem('profileData');
-        if (cachedData) {
-            return JSON.parse(cachedData);
-        }
-        
-        // Fall back to generating profile if no cached data
-        return await generateUserProfile();
+        return generateMockProfile();
     }
 }
 
@@ -255,7 +307,7 @@ async function fetchUserData() {
 async function generateUserProfile() {
     try {
         // Try the API first
-        const response = await fetchWithAuth('/generate_profile');
+        const response = await fetchWithAuth(API_CONFIG.ENDPOINTS.GENERATE_PROFILE);
         if (response.profile) {
             localStorage.setItem('profileData', JSON.stringify(response.profile));
             return response.profile;
@@ -382,49 +434,49 @@ setInterval(() => {
     refreshAllData();
 }, 5 * 60 * 1000); // Every 5 minutes
 
-// Toggle chatbot
-const chatbot = document.getElementById('chatbot');
-const chatToggle = document.getElementById('chatToggle');
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
+        // Toggle chatbot
+        const chatbot = document.getElementById('chatbot');
+        const chatToggle = document.getElementById('chatToggle');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
 
-chatbot.addEventListener('click', function(e) {
-    if (!chatbot.classList.contains('expanded') && e.target !== chatInput) {
-        chatbot.classList.add('expanded');
-        chatToggle.innerHTML = '▼';
-        setTimeout(() => {
-            chatInput.focus();
-        }, 300);
-    }
-});
+        chatbot.addEventListener('click', function(e) {
+            if (!chatbot.classList.contains('expanded') && e.target !== chatInput) {
+                chatbot.classList.add('expanded');
+                chatToggle.innerHTML = '▼';
+                setTimeout(() => {
+                    chatInput.focus();
+                }, 300);
+            }
+        });
 
-chatToggle.addEventListener('click', function(e) {
-    e.stopPropagation();
-    chatbot.classList.toggle('expanded');
-    chatToggle.innerHTML = chatbot.classList.contains('expanded') ? '▼' : '▲';
-});
+        chatToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            chatbot.classList.toggle('expanded');
+            chatToggle.innerHTML = chatbot.classList.contains('expanded') ? '▼' : '▲';
+        });
 
-// Handle chat input
-sendBtn.addEventListener('click', sendMessage);
-chatInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
+        // Handle chat input
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
 // Send chat message and get response from API
 async function sendMessage() {
-    const message = chatInput.value.trim();
-    if (message === '') return;
+            const message = chatInput.value.trim();
+            if (message === '') return;
 
-    // Add user message
-    addMessage(message, 'user');
-    chatInput.value = '';
+            // Add user message
+            addMessage(message, 'user');
+            chatInput.value = '';
 
     try {
         // Try to get response from API
-        const response = await fetchWithAuth('/chat', {
+        const response = await fetchWithAuth(API_CONFIG.ENDPOINTS.CHAT, {
             method: 'POST',
             body: JSON.stringify({ message }),
         });
@@ -438,53 +490,53 @@ async function sendMessage() {
         console.error('Error getting chat response:', error);
         
         // Fallback to predefined responses
-        setTimeout(() => {
-            let response;
-            const lowerMessage = message.toLowerCase();
-            
-            if (lowerMessage.includes('budget') || lowerMessage.includes('spending')) {
-                response = "Based on your spending patterns, I recommend allocating 50% for needs, 30% for wants, and 20% for savings. You're currently spending a bit more on wants than the recommended amount.";
-            } else if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
-                response = "You're on track to meet your savings goal! Just ₹1,500 more to go. Have you considered setting up automatic transfers to your savings account?";
-            } else if (lowerMessage.includes('spend') || lowerMessage.includes('expense')) {
-                response = "Your biggest expense categories this month are housing (30%) and food (20%). Your food expenses are 15% higher than last month.";
-            } else if (lowerMessage.includes('invest') || lowerMessage.includes('investment')) {
-                response = "Based on your risk profile and goals, I'd recommend considering a mix of index funds and fixed deposits. Would you like me to provide more specific recommendations?";
-            } else {
-                response = "I'm here to help with your financial questions. You can ask me about your spending, budgeting tips, savings goals, or investment advice!";
-            }
-            
-            addMessage(response, 'bot');
-        }, 800);
+            setTimeout(() => {
+                let response;
+                const lowerMessage = message.toLowerCase();
+                
+                if (lowerMessage.includes('budget') || lowerMessage.includes('spending')) {
+                    response = "Based on your spending patterns, I recommend allocating 50% for needs, 30% for wants, and 20% for savings. You're currently spending a bit more on wants than the recommended amount.";
+                } else if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
+                    response = "You're on track to meet your savings goal! Just ₹1,500 more to go. Have you considered setting up automatic transfers to your savings account?";
+                } else if (lowerMessage.includes('spend') || lowerMessage.includes('expense')) {
+                    response = "Your biggest expense categories this month are housing (30%) and food (20%). Your food expenses are 15% higher than last month.";
+                } else if (lowerMessage.includes('invest') || lowerMessage.includes('investment')) {
+                    response = "Based on your risk profile and goals, I'd recommend considering a mix of index funds and fixed deposits. Would you like me to provide more specific recommendations?";
+                } else {
+                    response = "I'm here to help with your financial questions. You can ask me about your spending, budgeting tips, savings goals, or investment advice!";
+                }
+                
+                addMessage(response, 'bot');
+            }, 800);
     }
-}
+        }
 
-function addMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('chat-message', sender);
-    messageDiv.textContent = text;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender);
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
-// Toggle side menu
-const menuBtn = document.getElementById('menuBtn');
-const menuClose = document.getElementById('menuClose');
-const sideMenu = document.getElementById('sideMenu');
-const overlay = document.getElementById('overlay');
+        // Toggle side menu
+        const menuBtn = document.getElementById('menuBtn');
+        const menuClose = document.getElementById('menuClose');
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
 
-menuBtn.addEventListener('click', function() {
-    sideMenu.classList.add('open');
-    overlay.classList.add('active');
-});
+        menuBtn.addEventListener('click', function() {
+            sideMenu.classList.add('open');
+            overlay.classList.add('active');
+        });
 
-function closeMenu() {
-    sideMenu.classList.remove('open');
-    overlay.classList.remove('active');
-}
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            overlay.classList.remove('active');
+        }
 
-menuClose.addEventListener('click', closeMenu);
-overlay.addEventListener('click', closeMenu);
+        menuClose.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
 
 // Remove the updateChartData function that simulates dynamic data changes
 // We'll use real API data instead
@@ -528,7 +580,7 @@ async function fetchUserData() {
         
         // If not opted out, proceed with normal fetch
         // Fetch user profile data from API
-        const profileData = await fetchWithAuth('/get_user_profile');
+        const profileData = await fetchWithAuth(API_CONFIG.ENDPOINTS.USER_PROFILE);
         
         // Store in localStorage for caching
         if (profileData) {
@@ -888,3 +940,39 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 });
+
+// Update the updateRecentTransactions function
+async function updateRecentTransactions() {
+    try {
+        const transactions = await fetchWithAuth(`${API_CONFIG.MOCKAROO_BASE_URL}/expenditures_and_savings.json`);
+        displayTransactions(transactions);
+    } catch (error) {
+        console.error('Error updating recent transactions:', error);
+        // Use fallback data if API call fails
+        const fallbackTransactions = generateFallbackData();
+        displayTransactions(fallbackTransactions);
+    }
+}
+
+// Function to display transactions in the UI
+function displayTransactions(transactions) {
+    const transactionsList = document.getElementById('transactionsList');
+    if (!transactionsList) return;
+
+    // Show loading state
+    transactionsList.innerHTML = '<div class="loading">Loading transactions...</div>';
+
+    // Clear existing transactions
+    transactionsList.innerHTML = '';
+    
+    // Add new transactions
+    if (Array.isArray(transactions) && transactions.length > 0) {
+        transactions
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .forEach(transaction => {
+                transactionsList.appendChild(createTransactionElement(transaction));
+            });
+    } else {
+        transactionsList.innerHTML = '<div class="no-data">No recent transactions found</div>';
+    }
+}
