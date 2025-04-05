@@ -491,3 +491,151 @@ stroke-width: 0;
 stroke: currentColor;
 fill: currentColor;
 }
+/* Opt-out page styles */
+.opt-out-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.opt-out-info {
+    margin-bottom: 2rem;
+}
+
+.opt-out-info ul {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+}
+
+.opt-out-info li {
+    margin-bottom: 0.5rem;
+}
+
+.opt-out-status {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.status-dot.active {
+    background-color: #28a745;
+}
+
+.status-dot.inactive {
+    background-color: #dc3545;
+}
+
+.opt-out-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.primary-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #c82333;
+}
+
+.secondary-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #218838;
+}
+
+.home-link {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.home-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.home-link a:hover {
+    text-decoration: underline;
+}
+
+.main-content.full-width {
+    grid-column: 1 / -1;
+}
+/* Add these styles to your style.css file */
+
+.finance-input {
+    width: 80px;
+    height: 24px;
+    padding: 2px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.save-btn:hover {
+    background-color: #45a049;
+}
+
+/* Update the progress-value to accommodate inputs */
+.progress-value {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .finance-input {
+        width: 60px;
+        font-size: 12px;
+    }
+    
+    .save-btn {
+        padding: 2px 6px;
+        font-size: 11px;
+    }
+}

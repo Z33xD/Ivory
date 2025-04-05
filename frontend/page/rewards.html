@@ -13,7 +13,7 @@
     <div class="section">
       <h3>💸 Budget Progress</h3>
       <div class="progress-bar">
-        <div class="progress-fill" style="width: 65%">65%</div>
+        <div class="progress-fill" id="budget-progress">0%</div>
       </div>
     </div>
 
@@ -21,10 +21,10 @@
       <h3>🌱 Savings Goal</h3>
       <div class="plant-container">
         <div class="soil"></div>
-        <div class="sprout" style="height: 50%"></div>
+        <div class="sprout" id="savings-sprout"></div>
         <div class="leaves"></div>
       </div>
-      <p class="goal-text">50% of your savings goal achieved!</p>
+      <p class="goal-text" id="savings-text">0% of your savings goal achieved!</p>
     </div>
 
     <div class="button-container">
@@ -32,7 +32,52 @@
     </div>
   </div>
 
+  <script src="script.js"></script>
   <script>
+    // Function to update UI with values from API
+    function updateProgressValues() {
+      // Fetch data from API or use the data provided by script.js
+      fetchProgressData()
+        .then(data => {
+          // Update budget progress
+          const budgetProgress = document.getElementById('budget-progress');
+          budgetProgress.style.width = data.budgetPercentage + '%';
+          budgetProgress.textContent = data.budgetPercentage + '%';
+          
+          // Update savings goal progress
+          const savingsSprout = document.getElementById('savings-sprout');
+          savingsSprout.style.height = data.savingsPercentage + '%';
+          
+          // Update savings text
+          const savingsText = document.getElementById('savings-text');
+          savingsText.textContent = data.savingsPercentage + '% of your savings goal achieved!';
+        })
+        .catch(error => {
+          console.error('Error fetching progress data:', error);
+        });
+    }
+    
+    // Function to fetch data from API
+    async function fetchProgressData() {
+      // If script.js provides a global function or object, use that
+      if (typeof getProgressData === 'function') {
+        return getProgressData();
+      }
+      
+      // Otherwise make direct API call
+      // const response = await fetch('your-api-endpoint');
+      // return await response.json();
+      
+      // Fallback to placeholder data if nothing else works
+      return {
+        budgetPercentage: 65,
+        savingsPercentage: 50
+      };
+    }
+    
+    // Call this when page loads
+    document.addEventListener('DOMContentLoaded', updateProgressValues);
+    
     function goToDashboard() {
       window.location.href = 'index.html';
     }
