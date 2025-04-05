@@ -1,0 +1,214 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-btn" id="menuBtn">☰</button>
+                <h1 class="app-title">Finance Tracker</h1>
+                <div class="notification-area" id="notification">
+                    You've spent ₹2000 on food delivery this week!
+                </div>
+            </header>
+    
+            <!-- Left Sidebar - History -->
+            <div class="history-sidebar" id="historySidebar">
+                <h2 class="history-title">Recent Transactions</h2>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">🍔</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Food Delivery</div>
+                            <div class="history-item-date">Today, 2:30 PM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹500</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">🏠</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Rent Payment</div>
+                            <div class="history-item-date">Yesterday, 10:15 AM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹15,000</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">💼</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Salary Deposit</div>
+                            <div class="history-item-date">Apr 1, 9:00 AM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount income">+₹45,000</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">🛒</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Grocery Shopping</div>
+                            <div class="history-item-date">Mar 30, 6:45 PM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹2,500</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">📱</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Phone Bill</div>
+                            <div class="history-item-date">Mar 28, 3:20 PM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹999</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">🎬</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Movie Tickets</div>
+                            <div class="history-item-date">Mar 26, 7:15 PM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹1,200</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-left">
+                        <div class="history-item-icon">⚡</div>
+                        <div class="history-item-details">
+                            <div class="history-item-title">Electricity Bill</div>
+                            <div class="history-item-date">Mar 25, 11:30 AM</div>
+                        </div>
+                    </div>
+                    <div class="history-item-amount expense">-₹2,300</div>
+                </div>
+            </div>
+    
+            <!-- Main Content - Chart -->
+            <main class="main-content">
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </main>
+    
+            <!-- Right Sidebar - Needs & Wants -->
+            <div class="needs-wants-sidebar">
+                <h2 class="sidebar-title">Spending Breakdown</h2>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-title">Needs</span>
+                        <span class="progress-value" id="needsValue">65%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill needs" id="needsBar" style="width: 65%"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-title">Wants</span>
+                        <span class="progress-value" id="wantsValue">35%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill wants" id="wantsBar" style="width: 35%"></div>
+                    </div>
+                </div>
+    
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-title">Monthly Budget</span>
+                        <span class="progress-value">₹15,000 / ₹25,000</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill needs" style="width: 60%"></div>
+                    </div>
+                </div>
+    
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-title">Savings Goal</span>
+                        <span class="progress-value">₹8,500 / ₹10,000</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill wants" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Add padding div to ensure content isn't hidden under fixed chatbot -->
+            <div class="body-padding"></div>
+        </div>
+    
+        <!-- Chatbot (moved outside grid container for fixed positioning) -->
+        <div class="chatbot-container" id="chatbot">
+            <div class="chatbot-header">
+                <h2 class="chatbot-title">Finance Assistant</h2>
+                <button class="chatbot-toggle" id="chatToggle">▼</button>
+            </div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    Hello! I'm your finance assistant. How can I help you manage your finances today?
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your finances...">
+                <button class="chat-send-btn" id="sendBtn">→</button>
+            </div>
+        </div>
+    
+        <!-- Side Menu -->
+        <div class="side-menu" id="sideMenu">
+            <button class="menu-close" id="menuClose">×</button>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">⚙️</div>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">➕</div>
+                <span>New Profile</span>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">🏦</div>
+                <span>Connect Bank Account</span>
+            </a>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">📊</div>
+                <span>Reports & Analytics</span>
+            </a>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">🎁</div>
+                <span>Rewards</span>
+            </a>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">🎯</div>
+                <span>Savings Goals</span>
+            </a>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">🔔</div>
+                <span>Notifications</span>
+            </a>
+            
+            <a href="#" class="menu-item">
+                <div class="menu-item-icon">⛔</div>
+                <span>Opt Out of Financial Tracking</span>
+            </a>
+        </div>
+    
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
+    <script src="script.js"></script>
+    </body>
