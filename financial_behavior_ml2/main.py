@@ -53,14 +53,21 @@ def main():
     print("Preprocessing data...")
     df = processor.preprocess_data(df)
     
+    # Check if models directory exists, otherwise use models_corrected
+    model_dir = 'models'
+    if not os.path.exists('models') or len(os.listdir('models')) == 0:
+        if os.path.exists('models_corrected'):
+            model_dir = 'models_corrected'
+            print(f"Using models from {model_dir} directory...")
+    
     # Create models directory if it doesn't exist
-    if not os.path.exists('models'):
-        os.makedirs('models')
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
     
     # Check which models need to be trained
     missing_models = []
     for category in processor.savings_categories:
-        if not os.path.exists(f"models/{category}_savings_model.joblib"):
+        if not os.path.exists(f"{model_dir}/{category}_savings_model.joblib"):
             missing_models.append(category)
     
     if missing_models:
@@ -70,7 +77,7 @@ def main():
     
     # Load all the models
     print("Loading all trained models...")
-    processor.load_models()
+    processor.load_models(folder=model_dir)
     
     # Evaluate all models
     evaluate_models(processor, df)

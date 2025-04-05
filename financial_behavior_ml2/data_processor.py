@@ -92,9 +92,27 @@ class DataProcessor:
         # Models for prediction
         self.models = {}
         
-    def load_data(self, file_path='financial_behavior.csv'):
+    def load_data(self, file_path=None):
         """Load and preprocess the financial behavior data"""
+        # If file_path is not provided, try different locations
+        if file_path is None:
+            possible_paths = [
+                'financial_behavior.csv',                     # In the current directory
+                os.path.join('financial_behavior_ml2', 'financial_behavior.csv'),  # In the project subdirectory
+                os.path.abspath(os.path.join(os.path.dirname(__file__), 'financial_behavior.csv'))  # Same directory as script
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    file_path = path
+                    print(f"Found CSV file at: {path}")
+                    break
+            
+            if file_path is None:
+                raise FileNotFoundError("Could not find financial_behavior.csv in any expected location")
+        
         # Read the CSV file
+        print(f"Loading CSV from: {file_path}")
         df = pd.read_csv(file_path)
         return df
         
@@ -226,10 +244,33 @@ class DataProcessor:
     
     def load_models(self, folder='models'):
         """Load saved models from disk"""
+        loaded_models = 0
+        missing_models = []
+        
         for category in self.savings_categories:
             model_path = os.path.join(folder, f'{category}_savings_model.joblib')
             if os.path.exists(model_path):
                 self.models[category] = joblib.load(model_path)
+                loaded_models += 1
+            else:
+                missing_models.append(category)
+        
+        if loaded_models == 0 and len(missing_models) > 0:
+            print(f"Warning: No models could be loaded from '{folder}' directory.")
+            print(f"Missing models: {', '.join(missing_models)}")
+            
+            # Check if models exist in alternative directory
+            alt_folder = 'models_corrected' if folder == 'models' else 'models'
+            if os.path.exists(alt_folder):
+                print(f"Checking alternative directory: {alt_folder}")
+                for category in missing_models:
+                    model_path = os.path.join(alt_folder, f'{category}_savings_model.joblib')
+                    if os.path.exists(model_path):
+                        self.models[category] = joblib.load(model_path)
+                        print(f"Loaded {category} model from {alt_folder}")
+                        loaded_models += 1
+        
+        print(f"Successfully loaded {loaded_models} out of {len(self.savings_categories)} models.")
     
     def analyze_user_data(self, user_data):
         """Analyze individual user's financial data and predict potential savings"""
@@ -244,45 +285,55 @@ class DataProcessor:
         
         # Calculate expense ratios
         for category in self.expense_categories:
-            user_data[f'{category}_ratio'] = user_data[category] / user_data['total_expenses']
+            user_data[f'{category}_ratio'] = 0 if user_data['total_expenses'].iloc[0] == 0 else user_data[category] / user_data['total_expenses']
         
         # Add savings-related features
         user_data['savings_amount'] = user_data['income'] - user_data['total_expenses']
-        user_data['savings_rate'] = user_data['savings_amount'] / user_data['income']
+        user_data['savings_rate'] = 0 if user_data['income'].iloc[0] == 0 else user_data['savings_amount'] / user_data['income']
         
         # Add expense-to-income ratios
-        user_data['expense_to_income_ratio'] = user_data['total_expenses'] / user_data['income']
-        user_data['needs_to_income_ratio'] = user_data['total_needs'] / user_data['income']
-        user_data['wants_to_income_ratio'] = user_data['total_wants'] / user_data['income']
+        user_data['expense_to_income_ratio'] = 0 if user_data['income'].iloc[0] == 0 else user_data['total_expenses'] / user_data['income']
+        user_data['needs_to_income_ratio'] = 0 if user_data['income'].iloc[0] == 0 else user_data['total_needs'] / user_data['income']
+        user_data['wants_to_income_ratio'] = 0 if user_data['income'].iloc[0] == 0 else user_data['total_wants'] / user_data['income']
             
-        # Calculate current spending
+        # Create the analysis dictionary
         analysis = {
-            'current_spending': {cat: user_data[cat].iloc[0] for cat in self.expense_categories},
+            'current_spending': {},
+            'income': user_data['income'].iloc[0],
             'total_expenses': user_data['total_expenses'].iloc[0],
             'total_needs': user_data['total_needs'].iloc[0],
             'total_wants': user_data['total_wants'].iloc[0],
-            'needs_percentage': (user_data['total_needs'].iloc[0] / user_data['total_expenses'].iloc[0]) * 100,
-            'wants_percentage': (user_data['total_wants'].iloc[0] / user_data['total_expenses'].iloc[0]) * 100,
-            'savings_amount': user_data['savings_amount'].iloc[0],
-            'savings_rate': user_data['savings_rate'].iloc[0] * 100
+            'needs_percentage': 0 if user_data['total_expenses'].iloc[0] == 0 else (user_data['total_needs'].iloc[0] / user_data['total_expenses'].iloc[0]) * 100,
+            'wants_percentage': 0 if user_data['total_expenses'].iloc[0] == 0 else (user_data['total_wants'].iloc[0] / user_data['total_expenses'].iloc[0]) * 100,
         }
         
-        # Predict potential savings if models are available
+        # Add current spending for each category
+        for category in self.expense_categories:
+            analysis['current_spending'][category] = user_data[category].iloc[0]
+        
+        # Predict potential savings using the trained models
         if self.models:
             analysis['predicted_savings'] = {}
             total_potential_savings = 0
             
+            # Make sure all models are checked
             for category in self.savings_categories:
+                # Check if model exists for this category
                 if category in self.models:
                     # Predict potential savings
-                    potential_savings = self.models[category].predict(user_data)[0]
-                    
-                    # Store prediction (ensure non-negative values)
-                    analysis['predicted_savings'][category] = max(0, potential_savings)
-                    total_potential_savings += max(0, potential_savings)
+                    try:
+                        predicted_savings = self.models[category].predict(user_data)[0]
+                        if predicted_savings > 0:  # Only include positive savings
+                            analysis['predicted_savings'][category] = predicted_savings
+                            total_potential_savings += predicted_savings
+                    except Exception as e:
+                        print(f"Error predicting savings for {category}: {str(e)}")
+                        # Use a fallback value or continue
+                        analysis['predicted_savings'][category] = 0
             
+            # Add total potential savings and percentage
             analysis['total_potential_savings'] = total_potential_savings
-            analysis['potential_savings_percentage'] = (total_potential_savings / analysis['total_expenses']) * 100
+            analysis['potential_savings_percentage'] = 0 if analysis['total_expenses'] == 0 else (total_potential_savings / analysis['total_expenses']) * 100
         
         # Generate recommendations
         analysis['recommendations'] = self._generate_recommendations(analysis)
@@ -290,36 +341,36 @@ class DataProcessor:
         return analysis
     
     def _generate_recommendations(self, analysis):
-        """Generate personalized recommendations based on analysis and predicted savings"""
+        """Generate personalized recommendations based on the analysis"""
         recommendations = []
         
-        # Check overall spending balance
-        if analysis['needs_percentage'] > 75:
-            recommendations.append("Your essential expenses are high relative to your income. Review fixed costs like rent or loans.")
+        # Check overall expense-to-income ratio
+        if 'income' in analysis:
+            if analysis['total_expenses'] / analysis['income'] > 0.7:
+                recommendations.append(
+                    "Your essential expenses are high relative to your income. Review fixed costs like rent or loans."
+                )
+        else:
+            # Default recommendation if income isn't available
+            recommendations.append(
+                "Your essential expenses are high relative to your income. Review fixed costs like rent or loans."
+            )
         
-        if analysis['wants_percentage'] > 35:
-            recommendations.append("Your discretionary spending is higher than recommended. Consider cutting back on non-essential expenses.")
-        
-        # Add savings-based recommendations
+        # Add savings recommendations
         if 'predicted_savings' in analysis:
-            # Recommend top 3 savings opportunities
-            savings_items = sorted(analysis['predicted_savings'].items(), key=lambda x: x[1], reverse=True)[:3]
+            # Get top categories by potential savings amount
+            sorted_savings = sorted(
+                [(category, amount) for category, amount in analysis['predicted_savings'].items()],
+                key=lambda x: x[1],
+                reverse=True
+            )
             
-            for category, amount in savings_items:
-                if amount > 0:
-                    saving_percentage = (amount / analysis['current_spending'][category]) * 100
-                    if saving_percentage >= 5:  # Only recommend meaningful savings (>= 5%)
-                        recommendations.append(f"You could save approximately ₹{amount:.2f} ({saving_percentage:.1f}%) on {category} based on similar spending profiles.")
-        
-        # Add savings rate recommendations
-        if analysis.get('savings_rate', 0) < 20:
-            recommendations.append("Your savings rate is below the recommended 20%. Try increasing your monthly savings.")
-        
-        # Add general advice
-        if len(recommendations) < 3:
-            recommendations.append("Build an emergency fund covering 3-6 months of expenses.")
-            
-        if len(recommendations) < 3:
-            recommendations.append("Consider the 50/30/20 rule: 50% needs, 30% wants, and 20% savings.")
+            # Add top 3-5 savings recommendations
+            for category, amount in sorted_savings[:4]:  # Limit to top 4
+                if amount > 0:  # Only include positive savings
+                    percentage = (amount / analysis['current_spending'][category]) * 100
+                    recommendations.append(
+                        f"You could save approximately ₹{amount:.2f} ({percentage:.1f}%) on {category} based on similar spending profiles."
+                    )
         
         return recommendations 
