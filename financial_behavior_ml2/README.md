@@ -19,6 +19,10 @@ This project analyzes financial behavior data and provides personalized insights
 
 2. Make sure you have the `financial_behavior.csv` file in the project directory
 
+3. Get a valid Gemini API key from [Google AI Studio](https://ai.google.dev/)
+   - The provided default key may expire or have usage limitations
+   - Update the API key in `finance_chatbot.py` if needed
+
 ## Usage
 
 ### Run Financial Analysis
@@ -28,6 +32,16 @@ To run just the financial analysis:
 ```
 python main.py
 ```
+
+### Test the Gemini API Connection
+
+Before using the chatbot, you can test your API connection:
+
+```
+python test_gemini_api.py [YOUR_API_KEY]
+```
+
+If you don't provide an API key, it will use the default one in the script.
 
 ### Use the Chatbot
 
@@ -51,6 +65,25 @@ Example questions you can ask the chatbot:
 - "Can you suggest a budget plan for me?"
 - "How does my spending compare to recommended ratios?"
 - "What's the most effective way to reduce my grocery expenses?"
+
+## Troubleshooting
+
+### API Issues
+
+If you encounter API errors like:
+
+```
+404 models/gemini-pro is not found for API version v1beta
+```
+
+Try the following solutions:
+
+1. Run the test script (`test_gemini_api.py`) to see available models
+2. Get a new API key from [Google AI Studio](https://ai.google.dev/)
+3. Check that your internet connection allows access to Google API endpoints
+4. Make sure your google-generativeai library is up to date
+
+The script automatically tries to find the best available model, but API models change over time.
 
 ## How It Works
 
