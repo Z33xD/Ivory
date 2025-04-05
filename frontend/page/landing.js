@@ -34,24 +34,74 @@ const particles = document.querySelector('.particles');
             icon.style.animationDuration = duration + 's';
         });
         
-        // Form submission animation
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
+        // Function to fetch user profile data from Mockaroo
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('https://my.api.mockaroo.com/expenditures_and_savings.json', {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': 'a1055fe0'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch profile data');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching profile data:', error);
+                // Return default data in case of error
+                return {
+                    income: 50000,
+                    expenses: {
+                        groceries: 5000,
+                        transport: 2000,
+                        eating_out: 3000,
+                        entertainment: 2000,
+                        utilities: 4000,
+                        healthcare: 2000,
+                        education: 3000,
+                        miscellaneous: 2000
+                    },
+                    savings_goal: 10000,
+                    disposable_income: 27000
+                };
+            }
+        }
+
+        // Form submission animation and API call
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const username = document.getElementById('username').value;
             
             // Button animation
             document.getElementById('createBtn').innerHTML = 'Creating...';
             
-            // Show success message after delay
-            setTimeout(() => {
+            try {
+                // Fetch profile data from Mockaroo
+                const profileData = await fetchUserProfile();
+                
+                // Store user data in localStorage
+                localStorage.setItem('username', username);
+                localStorage.setItem('profileData', JSON.stringify(profileData));
+                localStorage.setItem('lastUpdate', new Date().toISOString());
+                
+                // Show success message
                 document.getElementById('successMessage').classList.add('show');
                 
-                // Hide success message after 3 seconds
+                // Redirect to dashboard after 3 seconds
                 setTimeout(() => {
-                    document.getElementById('successMessage').classList.remove('show');
-                    document.getElementById('createBtn').innerHTML = 'Create Profile';
-                    document.getElementById('username').value = '';
-                }, 30000);
-            }, 1000);
+                    window.location.href = "index.html";
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error during profile creation:', error);
+                document.getElementById('createBtn').innerHTML = 'Create Profile';
+                alert('There was an error creating your profile. Please try again.');
+            }
         });
         function redirectToDashboard() {
             window.location.href = "index.html";
