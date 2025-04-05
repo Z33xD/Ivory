@@ -1,0 +1,24 @@
+# Ignore node_modules
+node_modules/
+node_modules/
+package-lock.json
+.vscode/
+*.log
+dist/
+package.json
+# Ignore lock files
+package-lock.json
+yarn.lock
+
+# Ignore build files or cache
+dist/
+build/
+*.log
+
+# Optional: ignore editor settings
+.vscode/
+
+# Optional: ignore OS-specific files
+.DS_Store
+Thumbs.db
+.env

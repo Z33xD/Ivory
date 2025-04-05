@@ -1,0 +1,99 @@
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  button {
+    background: #fcbf49;
+    color: #3c3c3c;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  
+  button:hover {
+    background: #f77f00;
+    transform: scale(1.05);
+  }
+/* Plant animation */
+.plant-container {
+    position: relative;
+    width: 100px;
+    height: 150px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeInUp 1s ease;
+  }
+  
+  .soil {
+    width: 100%;
+    height: 20px;
+    background-color: #a0522d;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .sprout {
+    width: 6px;
+    background-color: #388e3c;
+    animation: growSprout 2s ease-in-out forwards;
+    transform-origin: bottom;
+    margin-top: -2px;
+  }
+  
+  .leaves {
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 20px solid #81c784;
+    margin-top: -10px;
+    opacity: 0;
+    animation: leafPop 1s 2s forwards ease-out;
+  }
+  
+  .goal-text {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
+    color: #4caf50;
+    animation: fadeIn 2.5s ease;
+  }
+  
+  /* Animations */
+  @keyframes growSprout {
+    0% { height: 0; }
+    100% { height: 75px; }
+  }
+  
+  @keyframes leafPop {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
