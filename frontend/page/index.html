@@ -512,6 +512,7 @@
             display: block;
             border: 1px solid #ddd;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
         }
 
         .chat-message.user {
@@ -1413,23 +1414,16 @@
     <script>
     // Gemini AI Finance Chatbot API integration
     const FINANCE_CHATBOT_CONFIG = {
-        API_KEY: "AIzaSyDMQ0Tv2uyrDgPN7loV2Zg8cWMOAjSU0zM",
-        API_ENDPOINT: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
-        USE_MOCK_RESPONSES: true // Set to false when backend API is ready
+        API_KEY: "AIzaSyDPRWyRT2GGMDnYET6yRgbVP-caS1qSzk4",
+        API_ENDPOINT: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        USE_MOCK_RESPONSES: false
     };
 
     // Function to generate Gemini AI response
     async function generateAIResponse(message, userProfile = null) {
         try {
             console.log('generateAIResponse called with message:', message);
-            console.log('User profile:', userProfile);
             
-            if (FINANCE_CHATBOT_CONFIG.USE_MOCK_RESPONSES) {
-                // Mock responses for testing
-                console.log('Using mock responses');
-                return await simulateAIResponse(message);
-            }
-
             // Build context from profile data if available
             let context = "";
             if (userProfile) {
@@ -1442,52 +1436,79 @@ USER PROFILE:
 
 EXPENSE ANALYSIS:
 ${formatExpenseAnalysis(userProfile.expenses)}
-
-Based on this analysis, provide helpful financial advice.
 `;
             }
 
-            // Full prompt with user message
-            const prompt = `${context}
-You are a helpful and knowledgeable financial advisor chatbot. 
-Provide personalized financial advice based on the user's data and question.
-User question: ${message}`;
+            const requestBody = {
+                contents: [{
+                    role: "user",
+                    parts: [{
+                        text: `${context}
+As an AI financial advisor, provide specific and practical advice for this question: ${message} 
+
+Please ensure your response is:
+1. Clear and actionable
+2. Specific to the user's situation (if profile data is available)
+3. Professional but conversational
+4. Includes numerical recommendations when relevant
+5. Do not use bold text`
+                    }]
+                }],
+                safetySettings: [
+                    {
+                        category: "HARM_CATEGORY_HARASSMENT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_HATE_SPEECH",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    }
+                ]
+            };
 
             console.log('Sending request to Gemini API');
-            // Call the Gemini API
             const response = await fetch(`${FINANCE_CHATBOT_CONFIG.API_ENDPOINT}?key=${FINANCE_CHATBOT_CONFIG.API_KEY}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.4,
-                        maxOutputTokens: 1024
-                    }
-                })
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
+                console.error('API Error:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('Error details:', errorText);
                 throw new Error(`API request failed: ${response.status}`);
             }
 
             const data = await response.json();
             console.log('API response received:', data);
             
-            // Extract text from the response (format depends on the API response structure)
+            // Extract text from the response
             const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                               data.candidates?.[0]?.text ||
                                "I'm sorry, I couldn't generate a response at this time.";
             
             return responseText;
+
         } catch (error) {
             console.error("Error generating AI response:", error);
-            return "I apologize, but I'm having trouble connecting to my knowledge base. Let me provide some general advice instead.\n\nFor better financial management, consider following the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings and debt repayment.";
+            
+            // Provide more specific error messages based on the error type
+            if (error.message.includes('404')) {
+                return "I apologize, but I'm currently experiencing technical difficulties with the AI service. I'll use my backup system to help you. What specific financial aspect would you like advice on?";
+            } else {
+                return await simulateAIResponse(message);
+            }
         }
     }
 
@@ -1573,7 +1594,27 @@ User question: ${message}`;
         // Create message element
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('chat-message', sender);
-        messageDiv.textContent = text;
+        
+        // Format text to add new lines between asterisks and remove asterisks
+        if (sender === 'bot') {
+            // Split by ** but keep the delimiters
+            const parts = text.split(/(\*\*.*?\*\*)/g);
+            const formattedText = parts
+                .map(part => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                        // Add newlines and remove asterisks
+                        return '\n' + part.replace(/\*\*/g, '') + '\n';
+                    }
+                    return part;
+                })
+                .join('');
+            
+            // Replace 3 or more consecutive newlines with just 2 newlines
+            const limitedNewlines = formattedText.replace(/\n{3,}/g, '\n\n');
+            messageDiv.textContent = limitedNewlines;
+        } else {
+            messageDiv.textContent = text;
+        }
         
         // Add message to chat container
         chatMessages.appendChild(messageDiv);
