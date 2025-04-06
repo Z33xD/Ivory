@@ -359,7 +359,16 @@ class FinanceChatbot:
         
         # Prepare context for the chatbot
         system_prompt = """
-You are a helpful and knowledgeable financial advisor chatbot. You have analyzed the user's financial data and will provide personalized advice and insights based on that analysis.
+You are a professional but approachable financial advisor. You provide useful information with a balanced tone - neither overly enthusiastic nor too cold and direct. Show some empathy when appropriate, but remain focused on delivering value.
+
+Your communication style:
+- Be clear and concise, but not abrupt
+- Show some warmth when discussing personal financial concerns
+- Use a professional but conversational tone
+- Allow some personality to come through in your responses
+- Maintain an appropriate level of formality without being stiff
+- Be helpful without excessive enthusiasm
+- Keep answers focused but not unnecessarily terse
 
 Here's the financial analysis for this user:
 """
@@ -389,24 +398,23 @@ POTENTIAL SAVINGS:
 RECOMMENDATIONS:
 {self._format_list_items(self.analysis_result.get("recommendations", []))}
 
-Based on this analysis, provide helpful financial advice, answer questions, and suggest actionable steps to improve the user's financial situation. Be conversational, supportive, and provide specific advice tied to their situation.
+Based on this analysis, provide factual information and answer questions.
 """
         
         # Super minimal output - just a welcome message and nothing else
-        print("\nWelcome to the Financial Advisor! How may I help you?")
-        print("\nType 'exit' to end conversation.")
+        print("\nFinancial Advisor here. How can I assist with your finances today? Type 'exit' when done.")
         
         try:
             # Initialize the chat history but don't display anything
             chat_history = []
             chat_history.append({"role": "user", "content": system_prompt})
-            chat_history.append({"role": "model", "content": "I'm ready to provide financial advice based on your data."})
+            chat_history.append({"role": "model", "content": "Ready to provide financial guidance."})
             
             # Chat loop
             while True:
                 user_input = input("\nYou: ")
                 if user_input.lower() == 'exit':
-                    print("Financial Advisor: Goodbye! Feel free to return if you have more financial questions.")
+                    print("Financial Advisor: Thanks for the discussion. Feel free to return when you need more financial guidance.")
                     break
                 
                 try:
@@ -429,8 +437,8 @@ Based on this analysis, provide helpful financial advice, answer questions, and 
                     chat_history.append({"role": "model", "content": response_text})
                     
                 except Exception as e:
-                    print(f"\nFinancial Advisor: I apologize, but I encountered an error: {str(e)}")
-                    print("Let me try to respond again with simplified context.\n")
+                    print(f"\nI'm having some trouble processing that: {str(e)}")
+                    print("Let me try a different approach.\n")
                     
                     try:
                         # Try simplified generation without full history
@@ -447,25 +455,25 @@ Based on this analysis, provide helpful financial advice, answer questions, and 
                         ]
                         
                     except Exception as retry_error:
-                        print(f"Error during retry: {str(retry_error)}")
-                        print("I'm having technical difficulties. Please try again with a different question.")
+                        print(f"Sorry, we're experiencing technical difficulties: {str(retry_error)}")
+                        print("Please try asking your question in a different way.")
         
         except Exception as e:
-            print(f"Error starting chat: {str(e)}")
+            print(f"Unable to continue the conversation: {str(e)}")
             
             # Try a fallback approach with direct content generation
             try:
-                print("\nAttempting fallback method...")
+                print("\nLet me provide some general guidance instead...")
                 response = self.model.generate_content(
-                    "You are a financial advisor. Provide a general introduction about financial advice.",
+                    "You are a balanced and professional financial advisor with a warm tone. Provide concise but helpful general information about personal finance.",
                     generation_config={"temperature": 0.2}
                 )
                 print(f"\nFinancial Advisor: {response.text}")
-                print("\nNote: Unable to use your specific financial data due to technical difficulties.")
-                print("Please check your API key and internet connection.")
+                print("\nNote: I couldn't access your specific financial data at this time.")
+                print("Please check your connection and try again later.")
             except Exception as fallback_error:
-                print(f"Fallback also failed: {str(fallback_error)}")
-                print("Please make sure your API key is valid and you have proper internet connectivity.")
+                print(f"Still having trouble connecting: {str(fallback_error)}")
+                print("Please verify your API key and internet connection.")
     
     def _format_dict_items(self, items_dict):
         """Format dictionary items for the prompt"""
