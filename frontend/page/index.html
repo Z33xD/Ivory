@@ -21,13 +21,16 @@
         </header>
 
         <!-- Notifications Dropdown -->
-        <div class="notifications-dropdown" id="notificationsDropdown">
+        <div class="notifications-panel" id="notificationsPanel">
             <div class="notifications-header">
                 <h3>Notifications</h3>
-                <button class="clear-notifications" id="clearNotifications">Clear All</button>
+                <button id="clearNotificationsBtn">Clear All</button>
             </div>
-            <div class="notifications-list" id="notificationsList">
+            <div class="notifications-list">
                 <!-- Notifications will be added here dynamically -->
+            </div>
+            <div class="notifications-footer">
+                <button id="clearAllNotificationsBtn" class="clear-all-btn">Clear All Notifications</button>
             </div>
         </div>
 
@@ -103,7 +106,16 @@
 
     <!-- Floating Chatbot Bubble -->
     <div class="chatbot-bubble" id="chatbotBubble">
-        <div class="bubble-icon">💬</div>
+        <span class="chat-notification">1</span>
+        <div class="bubble-icon">
+            <div class="robot-face">
+                <div class="robot-eyes">
+                    <div class="robot-eye"></div>
+                    <div class="robot-eye"></div>
+                </div>
+                <div class="robot-mouth"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Chatbot Popup Window -->
@@ -175,28 +187,155 @@
         /* Add these styles to your existing CSS */
         .chatbot-bubble {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: var(--primary-color);
+            bottom: 25px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(145deg, #6B5CFF, #4B36E9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(107, 92, 255, 0.4), 
+                        0 0 0 rgba(75, 54, 233, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
+            overflow: hidden;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .chatbot-bubble::after {
+            content: 'Get Financial Advice';
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
         }
 
         .chatbot-bubble:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(107, 92, 255, 0.5), 
+                        0 0 20px rgba(75, 54, 233, 0.3);
+        }
+
+        .chatbot-bubble:hover::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chatbot-bubble:active {
+            transform: scale(0.95);
         }
 
         .bubble-icon {
-            font-size: 24px;
+            position: relative;
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Animated robot face icon */
+        .robot-face {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
+        }
+
+        .robot-eyes {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .robot-eye {
+            width: 6px;
+            height: 6px;
+            background: #4B36E9;
+            border-radius: 50%;
+            animation: blink 3s infinite;
+        }
+
+        .robot-mouth {
+            height: 3px;
+            background: #4B36E9;
+            margin-top: 4px;
+            border-radius: 3px;
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            animation: speak 1.5s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 4px 15px rgba(107, 92, 255, 0.4), 
+                            0 0 0 rgba(75, 54, 233, 0);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(107, 92, 255, 0.4), 
+                            0 0 20px rgba(75, 54, 233, 0.4);
+            }
+        }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        @keyframes speak {
+            0%, 100% {
+                width: 50%;
+            }
+            50% {
+                width: 70%;
+            }
+        }
+
+        /* New notification badge on chatbot */
+        .chat-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF4E50;
             color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+            animation: bounce 0.6s infinite alternate;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-3px);
+            }
         }
 
         .chatbot-popup {
@@ -358,59 +497,65 @@
         }
 
         .menu-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            color: #333;
-            z-index: 1002;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
             width: 40px;
             height: 40px;
-            line-height: 1;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
         }
 
         .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+            background-color: var(--secondary-color);
         }
 
         .menu-btn:active {
             transform: scale(0.95);
         }
 
-        .side-menu {
+        /* Make sure the side menu has proper z-index too */
+        #sideMenu {
             position: fixed;
             top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100vh;
-            background: white;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: left 0.3s ease;
-            padding-top: 60px;
-        }
-
-        .side-menu.show {
-            left: 0;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            left: -250px;
+            width: 250px;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        #sideMenu.active {
+            left: 0;
+        }
+
+        /* Overlay for when menu is open */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
         }
 
-        .overlay.show {
+        #overlay.active {
             display: block;
         }
 
@@ -492,30 +637,32 @@
 
         .notifications-header {
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            background: var(--primary-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #eee;
         }
 
         .notifications-header h3 {
             margin: 0;
-            font-size: 1.1rem;
-            color: var(--text-color);
+            font-size: 1rem;
+            color: white;
         }
 
-        .clear-notifications {
-            background: none;
+        #clearNotificationsBtn {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 0.9rem;
+            color: white;
             padding: 5px 10px;
             border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
         }
 
-        .clear-notifications:hover {
-            background: rgba(0, 0, 0, 0.05);
+        #clearNotificationsBtn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .notifications-list {
@@ -619,171 +766,256 @@
                 opacity: 1;
             }
         }
+
+        .notifications-panel {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            max-height: 400px;
+        }
+
+        .notifications-panel.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notifications-footer {
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+        }
+
+        .clear-all-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .clear-all-btn:hover {
+            background: var(--secondary-color);
+        }
     </style>
 
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded - Initializing chatbot');
+            console.log('DOM Loaded - Initializing UI elements');
             
-            // Chatbot popup functionality
+            // Elements
             const chatbotBubble = document.getElementById('chatbotBubble');
             const chatbotPopup = document.getElementById('chatbotPopup');
-            const popupClose = document.getElementById('popupClose');
+            const chatMessages = document.getElementById('chatMessages');
             const chatInput = document.getElementById('chatInput');
             const sendBtn = document.getElementById('sendBtn');
-            const chatMessages = document.getElementById('chatMessages');
+            const popupClose = document.getElementById('popupClose');
+            const menuBtn = document.getElementById('menuBtn');
+            const sideMenu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('overlay');
+            const closeBtn = document.getElementById('closeBtn');
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsPanel = document.getElementById('notificationsPanel');
+            const clearNotificationsBtn = document.getElementById('clearNotificationsBtn');
             
-            // Debug checks - ensure elements exist
-            console.log('Chatbot elements found:', {
-                bubble: !!chatbotBubble,
-                popup: !!chatbotPopup,
-                close: !!popupClose,
-                input: !!chatInput,
-                sendBtn: !!sendBtn,
-                messages: !!chatMessages
+            console.log('UI elements found:', {
+                chatbotBubble: !!chatbotBubble,
+                chatbotPopup: !!chatbotPopup,
+                menuBtn: !!menuBtn,
+                sideMenu: !!sideMenu,
+                notificationsBtn: !!notificationsBtn
             });
-
-            // Make the AI response generator accessible
-            window.generateAIResponse = generateAIResponse;
             
-            // Chat functionality
-            function addMessage(text, sender) {
-                console.log(`Adding ${sender} message:`, text.substring(0, 50) + '...');
-                
-                // Create message element
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('chat-message', sender);
-                messageDiv.textContent = text;
-                
-                // Add message to chat container
-                chatMessages.appendChild(messageDiv);
-                
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
+            // Initialize notifications
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            let unreadCount = notifications.filter(n => !n.read).length;
             
-            // Typing indicator management
-            function showTypingIndicator() {
-                const typingIndicator = document.createElement('div');
-                typingIndicator.classList.add('chat-message', 'bot', 'typing-indicator');
-                typingIndicator.id = 'typingIndicator';
-                typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-                chatMessages.appendChild(typingIndicator);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                return typingIndicator;
-            }
-            
-            function hideTypingIndicator() {
-                const indicator = document.getElementById('typingIndicator');
-                if (indicator && indicator.parentNode) {
-                    indicator.parentNode.removeChild(indicator);
+            function updateNotificationBadge() {
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'flex' : 'none';
                 }
             }
             
-            // Main send message function
-            async function sendChatMessage() {
-                const message = chatInput.value.trim();
-                if (!message) return;
+            function renderNotifications() {
+                if (!notificationsPanel) return;
                 
-                console.log('Sending user message:', message);
+                notificationsPanel.innerHTML = '';
                 
-                // Clear input before adding message
-                chatInput.value = '';
-                
-                // Add user message
-                addMessage(message, 'user');
-                
-                // Show typing indicator
-                showTypingIndicator();
-                
-                try {
-                    // Get user profile data
-                    const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
-                    console.log('Using profile data:', profileData);
-                    
-                    // Get response from our AI function
-                    console.log('Calling generateAIResponse...');
-                    const aiResponse = await window.generateAIResponse(message, profileData);
-                    console.log('AI response received:', aiResponse.substring(0, 50) + '...');
-                    
-                    // Hide typing indicator
-                    hideTypingIndicator();
-                    
-                    // Add AI response
-                    addMessage(aiResponse, 'bot');
-                } catch (error) {
-                    console.error('Error in AI response generation:', error);
-                    hideTypingIndicator();
-                    addMessage("I apologize, but I'm having trouble processing your request. Please try again with a different question.", 'bot');
+                if (notifications.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'notification-item empty';
+                    emptyMsg.textContent = 'No notifications';
+                    notificationsPanel.appendChild(emptyMsg);
+                    return;
                 }
-            }
-            
-            // Set up event listeners
-            if (sendBtn) {
-                sendBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    sendChatMessage();
+                
+                notifications.forEach((notification, index) => {
+                    const item = document.createElement('div');
+                    item.className = `notification-item ${notification.read ? 'read' : 'unread'}`;
+                    
+                    const title = document.createElement('div');
+                    title.className = 'notification-title';
+                    title.textContent = notification.title;
+                    
+                    const message = document.createElement('div');
+                    message.className = 'notification-message';
+                    message.textContent = notification.message;
+                    
+                    const time = document.createElement('div');
+                    time.className = 'notification-time';
+                    time.textContent = notification.time;
+                    
+                    item.appendChild(title);
+                    item.appendChild(message);
+                    item.appendChild(time);
+                    
+                    item.addEventListener('click', () => {
+                        if (!notification.read) {
+                            notification.read = true;
+                            unreadCount--;
+                            updateNotificationBadge();
+                            localStorage.setItem('notifications', JSON.stringify(notifications));
+                            item.classList.remove('unread');
+                            item.classList.add('read');
+                        }
+                    });
+                    
+                    notificationsPanel.appendChild(item);
                 });
             }
             
-            if (chatInput) {
-                chatInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        sendChatMessage();
+            function addNotification(title, message) {
+                const notification = {
+                    title: title,
+                    message: message,
+                    time: new Date().toLocaleTimeString(),
+                    read: false
+                };
+                
+                notifications.unshift(notification);
+                unreadCount++;
+                updateNotificationBadge();
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                renderNotifications();
+                
+                return notification;
+            }
+            
+            // Initialize notification functionality
+            if (notificationsBtn) {
+                console.log('Setting up notifications button');
+                notificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (notificationsPanel) {
+                        notificationsPanel.classList.toggle('show');
+                        
+                        if (notificationsPanel.classList.contains('show')) {
+                            renderNotifications();
+                        }
                     }
                 });
             }
             
-            if (chatbotBubble) {
+            // Set up both clear notifications buttons
+            if (clearNotificationsBtn) {
+                clearNotificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearAllNotifications();
+                });
+            }
+
+            const clearAllNotificationsBtn = document.getElementById('clearAllNotificationsBtn');
+            if (clearAllNotificationsBtn) {
+                clearAllNotificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearAllNotifications();
+                });
+            }
+
+            // Function to clear all notifications
+            function clearAllNotifications() {
+                notifications.length = 0;
+                unreadCount = 0;
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                updateNotificationBadge();
+                renderNotifications();
+            }
+            
+            // Initialize menu functionality
+            function toggleMenu() {
+                if (!sideMenu || !overlay) {
+                    console.error('Menu elements not found');
+                    return;
+                }
+                
+                console.log('Toggling menu');
+                sideMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+            
+            if (menuBtn) {
+                console.log('Setting up menu button');
+                menuBtn.addEventListener('click', function(e) {
+                    console.log('Menu button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+                
+                menuBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleMenu();
+                    }
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sideMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    sideMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+            
+            // Initialize chatbot
+            if (chatbotBubble && chatbotPopup) {
+                console.log('Setting up chatbot');
                 chatbotBubble.addEventListener('click', function(e) {
-                    console.log('Bubble clicked');
+                    console.log('Chatbot bubble clicked');
                     e.stopPropagation();
                     chatbotPopup.classList.toggle('show');
-                    if (chatbotPopup.classList.contains('show')) {
-                        chatInput.focus();
-                    }
                 });
             }
             
-            if (popupClose) {
-                popupClose.addEventListener('click', function(e) {
-                    console.log('Close button clicked');
-                    e.stopPropagation();
-                    chatbotPopup.classList.remove('show');
-                });
-            }
+            // Remove automatic notification
+            // setTimeout(() => {
+            //     addNotification('FinTrack AI Assistant', 'I can help you manage your finances! Click me to chat.');
+            //     updateNotificationBadge();
+            // }, 2000);
             
-            // Close popup when clicking outside
-            document.addEventListener('click', function(e) {
-                if (chatbotPopup && 
-                    chatbotPopup.classList.contains('show') && 
-                    !chatbotPopup.contains(e.target) && 
-                    !chatbotBubble.contains(e.target)) {
-                    chatbotPopup.classList.remove('show');
-                }
-            });
-            
-            // Suggested queries functionality
-            const suggestedQueries = document.getElementById('suggestedQueries');
-            if (suggestedQueries) {
-                const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
-                queryBubbles.forEach(bubble => {
-                    bubble.addEventListener('click', function() {
-                        const query = this.textContent;
-                        chatInput.value = query;
-                        sendChatMessage();
-                    });
-                });
-            }
-            
-            // Clean out any pre-existing messages except the welcome message
-            while (chatMessages.children.length > 1) {
-                chatMessages.removeChild(chatMessages.lastChild);
-            }
-            
-            console.log('Chatbot initialization complete');
+            console.log('All functionality initialized');
         });
     </script>
 
@@ -919,6 +1151,181 @@ User question: ${message}`;
         
         return result;
     }
+    </script>
+
+    <!-- Restore chatbot functionality -->
+    <script>
+    if (popupClose) {
+        popupClose.addEventListener('click', function(e) {
+            console.log('Close button clicked');
+            e.stopPropagation();
+            chatbotPopup.classList.remove('show');
+        });
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('click', function(e) {
+        if (chatbotPopup && 
+            chatbotPopup.classList.contains('show') && 
+            !chatbotPopup.contains(e.target) && 
+            !chatbotBubble.contains(e.target)) {
+            chatbotPopup.classList.remove('show');
+        }
+    });
+
+    // Make the AI response generator accessible
+    window.generateAIResponse = generateAIResponse;
+
+    // Chat functionality
+    function addMessage(text, sender) {
+        console.log(`Adding ${sender} message:`, text.substring(0, 50) + '...');
+        
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message', sender);
+        messageDiv.textContent = text;
+        
+        // Add message to chat container
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Typing indicator management
+    function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('chat-message', 'bot', 'typing-indicator');
+        typingIndicator.id = 'typingIndicator';
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return typingIndicator;
+    }
+
+    function hideTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator && indicator.parentNode) {
+            indicator.parentNode.removeChild(indicator);
+        }
+    }
+
+    // Main send message function
+    async function sendChatMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        console.log('Sending user message:', message);
+        
+        // Clear input before adding message
+        chatInput.value = '';
+        
+        // Add user message
+        addMessage(message, 'user');
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        try {
+            // Get user profile data
+            const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+            console.log('Using profile data:', profileData);
+            
+            // Get response from our AI function
+            console.log('Calling generateAIResponse...');
+            const aiResponse = await window.generateAIResponse(message, profileData);
+            console.log('AI response received:', aiResponse.substring(0, 50) + '...');
+            
+            // Hide typing indicator
+            hideTypingIndicator();
+            
+            // Add AI response
+            addMessage(aiResponse, 'bot');
+        } catch (error) {
+            console.error('Error in AI response generation:', error);
+            hideTypingIndicator();
+            addMessage("I apologize, but I'm having trouble processing your request. Please try again with a different question.", 'bot');
+        }
+    }
+
+    // Set up chatbot event listeners
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendChatMessage();
+        });
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
+
+    // Suggested queries functionality
+    const suggestedQueries = document.getElementById('suggestedQueries');
+    if (suggestedQueries) {
+        const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
+        queryBubbles.forEach(bubble => {
+            bubble.addEventListener('click', function() {
+                const query = this.textContent;
+                chatInput.value = query;
+                sendChatMessage();
+            });
+        });
+    }
+
+    // Clean out any pre-existing messages except the welcome message
+    while (chatMessages && chatMessages.children.length > 1) {
+        chatMessages.removeChild(chatMessages.lastChild);
+    }
+    </script>
+
+    <!-- Close notifications panel when clicking outside -->
+    <script>
+    document.addEventListener('click', function(e) {
+        if (notificationsPanel && 
+            notificationsPanel.classList.contains('show') && 
+            !notificationsPanel.contains(e.target) && 
+            !notificationsBtn.contains(e.target)) {
+            notificationsPanel.classList.remove('show');
+        }
+    });
+    </script>
+
+    <!-- Add debug check for notification elements -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debug check for notification elements
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const notificationsPanel = document.getElementById('notificationsPanel');
+        
+        console.log('Notification elements check:', {
+            notificationsBtn: !!notificationsBtn, 
+            notificationsPanel: !!notificationsPanel
+        });
+        
+        // Remove automatic notification
+        // if (window.addNotification) {
+        //     window.addNotification('Notification System', 'Your notification system is now fixed!');
+        // }
+    });
+    </script>
+
+    <!-- Make notification functions globally accessible -->
+    <script>
+    window.addNotification = addNotification;
+    window.updateNotificationBadge = updateNotificationBadge;
+    window.renderNotifications = renderNotifications;
+
+    // Add sample notifications for testing purposes
+    setTimeout(() => {
+        window.addNotification('Welcome', 'Welcome to your personal finance tracker!');
+        window.addNotification('Tip', 'Track your expenses daily for better insights.');
+    }, 1000);
     </script>
 </body>
 </html>

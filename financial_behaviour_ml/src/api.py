@@ -79,7 +79,7 @@ def update_user_profile(user_id, transaction):
         return
     
     profile = user_profiles[user_id]
-    category = transaction.get('category', 'miscellaneous')
+    category = transaction.get('category', 'Miscellaneous')
     amount = float(transaction.get('amount', 0))
     
     # Map transaction category to profile field
