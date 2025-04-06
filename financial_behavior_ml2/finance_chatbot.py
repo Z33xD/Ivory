@@ -500,3 +500,41 @@ if __name__ == "__main__":
     
     # Start chat interface
     chatbot.start_chat()
+
+def get_response(self, message):
+    """Generate a single response to a user message"""
+    if not self.analysis_result:
+        self.run_analysis()
+        
+    try:
+        # Create context with system prompt and user message
+        context = [
+            self._create_system_prompt(),
+            message
+        ]
+        
+        # Generate response
+        response = self.model.generate_content(context)
+        return response.text
+        
+    except Exception as e:
+        print(f"Error generating response: {str(e)}")
+        return "I apologize, but I'm having trouble generating a response. Please try again."
+
+def _create_system_prompt(self):
+    """Create the system prompt with financial analysis context"""
+    return f"""
+You are a helpful and knowledgeable financial advisor chatbot. You have analyzed the user's financial data and will provide personalized advice based on this analysis:
+
+USER PROFILE:
+Income: Rs.{self.analysis_result.get("user_profile", {}).get("income", "N/A")}
+Age: {self.analysis_result.get("user_profile", {}).get("age", "N/A")}
+Dependents: {self.analysis_result.get("user_profile", {}).get("dependents", "N/A")}
+
+EXPENSE SUMMARY:
+Total Needs: Rs.{self.analysis_result.get("summary", {}).get("total_needs", "N/A")}
+Total Wants: Rs.{self.analysis_result.get("summary", {}).get("total_wants", "N/A")}
+Potential Savings: Rs.{self.analysis_result.get("summary", {}).get("total_potential_savings", "N/A")}
+
+Provide specific, actionable financial advice based on this data.
+"""

@@ -10,6 +10,42 @@ import requests
 import sys
 import logging
 import uuid
+from finance_chatbot import FinanceChatbot
+import os
+
+# Initialize chatbot
+API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyDMQ0Tv2uyrDgPN7loV2Zg8cWMOAjSU0zM')
+chatbot = FinanceChatbot(API_KEY)
+
+@app.route('/chat', methods=['POST'])
+@token_required
+def chat(current_user):
+    """Handle chat messages"""
+    data = request.json
+    if not data or 'message' not in data:
+        return jsonify({"error": "No message provided"}), 400
+
+    try:
+        # Get user's financial data for context
+        user_profile = user_profiles.get(current_user, {})
+        
+        # Initialize chatbot with user data if not already done
+        if not chatbot.analysis_result:
+            chatbot.run_analysis(user_profile)
+
+        # Generate response using Gemini
+        response = chatbot.get_response(data['message'])
+        
+        return jsonify({
+            "reply": response,
+            "status": "success"
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "status": "error"
+        }), 500
 
 # Add parent directory to path to import from sibling modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
