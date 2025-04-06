@@ -361,10 +361,13 @@ async function loadUserProfile() {
             }
         }
 
-        // Update UI with username
-        const username = profileData.username || localStorage.getItem('username') || 'User';
-        document.querySelector('.app-title').textContent = `${username}'s Finance Tracker`;
+        // Set page title with username
+        const username = profileData.name || 'Guest';
+        document.querySelector('.app-title').textContent = `Ivory`;
 
+        // Make profileData available globally for other functions
+        window.profileData = profileData;
+        
         if (profileData.expenses) {
             const totalExpenses = Object.values(profileData.expenses).reduce((a, b) => a + b, 0);
             
@@ -378,24 +381,35 @@ async function loadUserProfile() {
             const needsPercentage = (needsTotal / totalExpenses * 100).toFixed(0);
             const wantsPercentage = (wantsTotal / totalExpenses * 100).toFixed(0);
 
-            document.getElementById('needsValue').textContent = `${needsPercentage}%`;
-            document.getElementById('wantsValue').textContent = `${wantsPercentage}%`;
+            // Update needs vs wants split with percentages on left and right
+            document.getElementById('needsPercentage').textContent = `${needsPercentage}%`;
+            document.getElementById('wantsPercentage').textContent = `${wantsPercentage}%`;
             document.getElementById('needsBar').style.width = `${needsPercentage}%`;
-            document.getElementById('wantsBar').style.width = `${wantsPercentage}%`;
 
-            // Update budget progress
+            // Update monetary breakdown
+            document.getElementById('needsMonetary').textContent = `₹${needsTotal.toLocaleString()}`;
+            document.getElementById('wantsMonetary').textContent = `₹${wantsTotal.toLocaleString()}`;
+            document.getElementById('needsMonetaryBar').style.width = `${needsPercentage}%`;
+
+            // Update monthly budget
             const monthlyBudget = profileData.income * 0.7; // 70% of income for expenses
-            document.querySelector('.progress-container:nth-child(3) .progress-value').textContent = 
-                `₹${totalExpenses.toLocaleString()} / ₹${monthlyBudget.toLocaleString()}`;
-            document.querySelector('.progress-container:nth-child(3) .progress-fill').style.width = 
+            document.getElementById('budgetValue').textContent = `₹${monthlyBudget.toLocaleString()}`;
+            document.getElementById('budgetBar').style.width = 
                 `${Math.min((totalExpenses / monthlyBudget * 100), 100)}%`;
 
-            // Update savings progress
-            const currentSavings = profileData.income - totalExpenses;
-            document.querySelector('.progress-container:nth-child(4) .progress-value').textContent = 
-                `₹${currentSavings.toLocaleString()} / ₹${profileData.savings_goal.toLocaleString()}`;
-            document.querySelector('.progress-container:nth-child(4) .progress-fill').style.width = 
-                `${Math.min((currentSavings / profileData.savings_goal * 100), 100)}%`;
+            // Update savings progress if goal exists
+            const savedGoal = localStorage.getItem('savingsGoal');
+            if (savedGoal) {
+                const currentSavings = profileData.income - totalExpenses;
+                const savingsGoal = parseFloat(savedGoal);
+                const progressPercent = Math.min((currentSavings / savingsGoal * 100), 100);
+                
+                document.getElementById('savingsValue').textContent = 
+                    `₹${currentSavings.toLocaleString()} / ₹${savingsGoal.toLocaleString()}`;
+                document.getElementById('savingsBar').style.width = `${progressPercent}%`;
+                document.getElementById('savingsValue').style.display = 'inline-block';
+                document.getElementById('savingsInputContainer').style.display = 'none';
+            }
 
             // Update expense chart
             updateExpenseChart(profileData.expenses);
@@ -407,7 +421,7 @@ async function loadUserProfile() {
         // Update recent transactions
         await updateRecentTransactions();
     } catch (error) {
-        console.error('Error loading profile:', error);
+        console.error('Failed to load profile:', error);
         // Display error state in UI
         document.getElementById('needsValue').textContent = 'Error';
         document.getElementById('wantsValue').textContent = 'Error';

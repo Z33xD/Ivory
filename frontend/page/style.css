@@ -60,8 +60,10 @@ margin-right: 20px;
 }
 
 .app-title {
-font-weight: 500;
-flex-grow: 1;
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    font-weight: 900;
 }
 
 .notification-area {

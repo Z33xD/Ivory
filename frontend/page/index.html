@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Tracker</title>
+    <title>Ivory</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +12,7 @@
         <!-- Header with single notification icon -->
         <header class="header">
             <button class="menu-btn" id="menuBtn">☰</button>
-            <h1 class="app-title">Finance Tracker</h1>
+            <h1 class="app-title">Ivory</h1>
             <div class="header-right">
                 <button class="notifications-btn" id="notificationsBtn">
                     <span class="notification-icon">🔔</span>
@@ -182,12 +182,12 @@
     <div class="side-menu" id="sideMenu">
         <button class="menu-close" id="menuClose">×</button>
         
-        <a href="#" class="menu-item">
-            <div class="menu-item-icon">⚙️</div>
-            <span>Settings</span>
+        <a href="index.html" class="menu-item">
+            <div class="menu-item-icon">📊</div>
+            <span>Dashboard</span>
         </a>
         <a href="stats.html" class="menu-item">
-            <div class="menu-item-icon">📊</div>
+            <div class="menu-item-icon">📈</div>
             <span>Detailed Statistics</span>
         </a>
         <a href="calendar.html" class="menu-item">
@@ -198,21 +198,6 @@
             <div class="menu-item-icon">➕</div>
             <span>New Profile</span>
         </a>
-        <a href="#" class="menu-item">
-            <div class="menu-item-icon">🏦</div>
-            <span>Connect Bank Account</span>
-        </a>
-        
-        <a href="rewards.html" class="menu-item">
-            <div class="menu-item-icon">🎁</div>
-            <span>Rewards</span>
-        </a>
-        
-        <a href="#" class="menu-item">
-            <div class="menu-item-icon">🎯</div>
-            <span>Savings Goals</span>
-        </a>
-        
         <a href="opt_out.html" class="menu-item">
             <div class="menu-item-icon">⛔</div>
             <span>Opt Out of Financial Tracking</span>
@@ -669,6 +654,7 @@
             margin: 0;
             font-size: 1.5rem;
             color: #333;
+            font-weight: 900;
         }
 
         .notifications-dropdown {
@@ -1402,6 +1388,7 @@
             
             // Remove automatic notification
             // setTimeout(() => {
+            //     addNotification('Ivory AI Assistant', 'I can help you manage your finances! Click me to chat.');
             //     addNotification('FinTrack AI Assistant', 'I can help you manage your finances! Click me to chat.');
             //     updateNotificationBadge();
             // }, 2000);
@@ -1754,7 +1741,7 @@ Please ensure your response is:
 
     // Add sample notifications for testing purposes
     setTimeout(() => {
-        window.addNotification('Welcome', 'Welcome to your personal finance tracker!');
+        window.addNotification('Welcome', 'Welcome to Ivory!');
         window.addNotification('Tip', 'Track your expenses daily for better insights.');
     }, 1000);
     </script>
@@ -2197,16 +2184,16 @@ Please ensure your response is:
             let message = '';
             
             if (progressPercent < 25) {
-                imageUrl = 'cat_sad.jpg';
+                imageUrl = 'images/cat_sad.jpg';
                 message = "Your savings pet is feeling a bit sad. Save more to cheer it up!";
             } else if (progressPercent < 50) {
-                imageUrl = 'cat_neutral.jpg';
+                imageUrl = 'images/cat_neutral.jpg';
                 message = "Your savings pet is doing okay, but could be happier with more savings!";
             } else if (progressPercent < 75) {
-                imageUrl = 'cat_happy.jpg';
+                imageUrl = 'images/cat_happy.jpg';
                 message = "Your savings pet is feeling pretty good! Keep it up!";
             } else {
-                imageUrl = 'cat_very_happy.jpg';
+                imageUrl = 'images/cat_very_happy.jpg';
                 message = "Your savings pet is extremely happy with your savings progress!";
             }
             
