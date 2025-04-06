@@ -65,7 +65,10 @@
             <div class="progress-container">
                 <div class="progress-label">
                     <span class="progress-title">Needs</span>
-                    <span class="progress-value" id="needsValue">Loading...</span>
+                    <div class="progress-percentage-container">
+                        <span class="percentage-left" id="needsPercentage">0%</span>
+                        <span class="percentage-right">Wants <span id="wantsPercentage">0%</span></span>
+                    </div>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill needs" id="needsBar" style="width: 0%"></div>
@@ -74,21 +77,21 @@
             
             <div class="progress-container">
                 <div class="progress-label">
-                    <span class="progress-title">Wants</span>
-                    <span class="progress-value" id="wantsValue">Loading...</span>
+                    <span class="progress-title">Monetary Breakdown</span>
+                    <div class="progress-percentage-container">
+                        <span class="monetary-left" id="needsMonetary">₹0</span>
+                        <span class="monetary-right">Wants <span id="wantsMonetary">₹0</span></span>
+                    </div>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill wants" id="wantsBar" style="width: 0%"></div>
+                    <div class="progress-fill needs" id="needsMonetaryBar" style="width: 0%"></div>
                 </div>
             </div>
 
             <div class="progress-container">
                 <div class="progress-label">
                     <span class="progress-title">Monthly Budget</span>
-                    <span class="progress-value" id="budgetValue">
-                        <input type="number" id="budgetInput" placeholder="Enter budget" class="finance-input">
-                        <button id="saveBudget" class="save-btn">Save</button>
-                    </span>
+                    <span class="progress-value" id="budgetValue">₹0</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill needs" id="budgetBar" style="width: 0%"></div>
@@ -98,13 +101,35 @@
             <div class="progress-container">
                 <div class="progress-label">
                     <span class="progress-title">Savings Goal</span>
-                    <span class="progress-value" id="savingsValue">
+                    <div id="savingsInputContainer">
                         <input type="number" id="savingsInput" placeholder="Enter goal" class="finance-input">
                         <button id="saveSavings" class="save-btn">Save</button>
-                    </span>
+                    </div>
+                    <span class="progress-value" id="savingsValue" style="display: none;">₹0</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill wants" id="savingsBar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="savings-pet-container">
+                <button id="savingsPetBtn" class="savings-pet-btn">
+                    <span class="savings-pet-icon">🐱</span>
+                    <span>Show Savings Pet</span>
+                </button>
+                <div id="savingsPetModal" class="savings-pet-modal">
+                    <div class="savings-pet-content">
+                        <span class="close-pet-modal">&times;</span>
+                        <h3>Your Savings Pet</h3>
+                        <div class="savings-progress-info">
+                            <p>Current savings: <span id="currentSavingsValue">₹0</span></p>
+                            <p>Goal progress: <span id="savingsProgressPercent">0%</span></p>
+                        </div>
+                        <div class="pet-image-container">
+                            <img id="savingsPetImage" src="" alt="Savings Pet">
+                        </div>
+                        <p id="savingsPetMessage">Keep saving to make your pet happier!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,6 +189,10 @@
         <a href="stats.html" class="menu-item">
             <div class="menu-item-icon">📊</div>
             <span>Detailed Statistics</span>
+        </a>
+        <a href="calendar.html" class="menu-item">
+            <div class="menu-item-icon">📅</div>
+            <span>Transaction Calendar</span>
         </a>
         <a href="landing.html" class="menu-item">
             <div class="menu-item-icon">➕</div>
@@ -922,8 +951,27 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .transaction-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .transaction-content {
+            flex: 1;
+            display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 3px;
         }
 
         .transaction-title {
@@ -943,12 +991,12 @@
         }
 
         .transaction-category {
-            font-size: 0.8rem;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
             display: inline-block;
-            margin-top: 5px;
+            margin-top: 2px;
+            font-weight: 500;
         }
 
         .progress-container {
@@ -1012,6 +1060,132 @@
 
         .save-btn:hover {
             background: var(--secondary-color);
+        }
+
+        .empty-transactions {
+            text-align: center;
+            padding: 30px 20px;
+            color: #757575;
+            font-size: 0.9rem;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Updated styles for spending breakdown */
+        .progress-percentage-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .percentage-left {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .percentage-right {
+            text-align: right;
+            color: #666;
+        }
+        
+        .monetary-left {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .monetary-right {
+            text-align: right;
+            color: #666;
+        }
+        
+        /* Savings Pet Styles */
+        .savings-pet-container {
+            margin-top: 20px;
+        }
+        
+        .savings-pet-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .savings-pet-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .savings-pet-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+        
+        .savings-pet-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .savings-pet-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .close-pet-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-pet-modal:hover,
+        .close-pet-modal:focus {
+            color: black;
+            text-decoration: none;
+        }
+        
+        .pet-image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .pet-image-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+        
+        .savings-progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        #savingsPetMessage {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
         }
     </style>
 
@@ -1542,6 +1716,486 @@ User question: ${message}`;
         window.addNotification('Welcome', 'Welcome to your personal finance tracker!');
         window.addNotification('Tip', 'Track your expenses daily for better insights.');
     }, 1000);
+    </script>
+
+    <!-- Add transaction category icons -->
+    <script>
+    // Map of transaction categories to their corresponding icons
+    const categoryIcons = {
+        'Food': '🍽️',
+        'Groceries': '🛒',
+        'Transport': '🚗',
+        'Transportation': '🚗',
+        'Entertainment': '🎬',
+        'Utilities': '💡',
+        'Rent': '🏠',
+        'Shopping': '🛍️',
+        'Health': '⚕️',
+        'Healthcare': '🏥',
+        'Medical': '💊',
+        'Education': '📚',
+        'Travel': '✈️',
+        'Dining': '🍴',
+        'Bills': '📄',
+        'Salary': '💰',
+        'Income': '💵',
+        'Investment': '📈',
+        'Eating_Out': '🍳',
+        'Restaurant': '🍽️',
+        'Restaurants': '🍽️',
+        'Miscellaneous': '📦',
+        'Others': '📦',
+        'Other': '📦',
+        'Clothing': '👕',
+        'Subscriptions': '📱',
+        'Gifts': '🎁',
+        'Donation': '❤️',
+        'Donations': '❤️',
+        'Insurance': '🔒',
+        'Fitness': '🏋️',
+        'Beauty': '💄',
+        'Personal': '👤',
+        'Personal Care': '🧴',
+        'Technology': '💻',
+        'Electronics': '📱',
+        'Household': '🏠',
+        'Home': '🏠',
+        'Maintenance': '🔧',
+        'Pets': '🐾',
+        'Childcare': '👶',
+        'Child Care': '👶',
+        'Children': '👶',
+        'Tax': '📊',
+        'Taxes': '📊',
+        'Gas': '⛽',
+        'Fuel': '⛽',
+        'Electricity': '⚡',
+        'Water': '💧',
+        'Internet': '🌐',
+        'Phone': '📱',
+        'Mobile': '📱',
+        'Cellphone': '📱',
+        'Wifi': '📶',
+        'Netflix': '🎬',
+        'Spotify': '🎵',
+        'Music': '🎵',
+        'Games': '🎮',
+        'Gaming': '🎮',
+        'Books': '📚',
+        'Magazines': '📰',
+        'Coffee': '☕',
+        'Alcohol': '🍷',
+        'Drinks': '🥤',
+        'Snacks': '🍿',
+        'Fast Food': '🍔',
+        'Gym': '💪',
+        'Sports': '⚽',
+        'Hobbies': '🎨',
+        'Movies': '🎞️',
+        'Theater': '🎭',
+        'Concert': '🎵',
+        'Events': '🎟️'
+    };
+
+    // Map of categories to background colors
+    const categoryColors = {
+        'Food': '#FF5722',
+        'Groceries': '#4CAF50',
+        'Transport': '#2196F3',
+        'Entertainment': '#9C27B0',
+        'Utilities': '#FFC107',
+        'Rent': '#795548',
+        'Shopping': '#E91E63',
+        'Health': '#00BCD4',
+        'Education': '#3F51B5',
+        'Travel': '#607D8B',
+        'Dining': '#FF9800',
+        'Bills': '#8BC34A',
+        'Salary': '#009688',
+        'Income': '#4CAF50',
+        'Investment': '#673AB7',
+        'Eating_Out': '#FF5722',
+        'Miscellaneous': '#9E9E9E',
+        // Add more categories as needed
+    };
+
+    // Get icon for category, fallback to generic icon if not found
+    function getCategoryIcon(category) {
+        // Normalize category name for matching (convert to lowercase and remove underscores)
+        if (!category) return '📝';
+        
+        // Try exact match first
+        if (categoryIcons[category]) {
+            return categoryIcons[category];
+        }
+        
+        // Try case-insensitive match
+        const normalizedCategory = category.toLowerCase();
+        for (const [key, value] of Object.entries(categoryIcons)) {
+            if (key.toLowerCase() === normalizedCategory) {
+                return value;
+            }
+        }
+        
+        // Try matching without underscores (e.g., "Eating_Out" → "Eating Out")
+        const withoutUnderscores = normalizedCategory.replace(/_/g, ' ');
+        for (const [key, value] of Object.entries(categoryIcons)) {
+            if (key.toLowerCase().replace(/_/g, ' ') === withoutUnderscores) {
+                return value;
+            }
+        }
+        
+        console.log('No icon found for category:', category);
+        return '📝'; // Fallback icon
+    }
+
+    // Get color for category, fallback to primary color if not found
+    function getCategoryColor(category) {
+        // Normalize category name for matching
+        if (!category) return '#6B5CFF';
+        
+        // Try exact match first
+        if (categoryColors[category]) {
+            return categoryColors[category];
+        }
+        
+        // Try case-insensitive match
+        const normalizedCategory = category.toLowerCase();
+        for (const [key, value] of Object.entries(categoryColors)) {
+            if (key.toLowerCase() === normalizedCategory) {
+                return value;
+            }
+        }
+        
+        // Try matching without underscores
+        const withoutUnderscores = normalizedCategory.replace(/_/g, ' ');
+        for (const [key, value] of Object.entries(categoryColors)) {
+            if (key.toLowerCase().replace(/_/g, ' ') === withoutUnderscores) {
+                return value;
+            }
+        }
+        
+        console.log('No color found for category:', category);
+        return '#6B5CFF'; // Fallback color
+    }
+
+    // Enhance the rendering of transactions with icons 
+    // We'll override this function if it gets called from script.js
+    window.renderTransaction = function(transaction) {
+        console.log('Rendering transaction:', transaction);
+        
+        const transactionItem = document.createElement('div');
+        transactionItem.className = 'transaction-item';
+        
+        // Get category with fallback
+        const category = transaction.category || 'Miscellaneous';
+        console.log('Category:', category);
+        
+        // Get icon and log result
+        const iconText = getCategoryIcon(category);
+        console.log('Icon for', category, ':', iconText);
+        
+        // Get color and log result
+        const iconColor = getCategoryColor(category);
+        console.log('Color for', category, ':', iconColor);
+        
+        // Create icon element
+        const icon = document.createElement('div');
+        icon.className = 'transaction-icon';
+        icon.style.backgroundColor = iconColor;
+        icon.textContent = iconText;
+        
+        // Create content container
+        const content = document.createElement('div');
+        content.className = 'transaction-content';
+        
+        // Create title 
+        const title = document.createElement('div');
+        title.className = 'transaction-title';
+        title.textContent = transaction.title || transaction.description || category;
+        
+        // Create amount
+        const amount = document.createElement('div');
+        amount.className = 'transaction-amount';
+        const amountValue = parseFloat(transaction.amount);
+        amount.textContent = `₹${Math.abs(amountValue).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        amount.style.color = amountValue < 0 ? '#FF5252' : '#4CAF50';
+        
+        // Create date
+        const date = document.createElement('div');
+        date.className = 'transaction-date';
+        date.textContent = new Date(transaction.date).toLocaleDateString('en-IN', {
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric'
+        });
+        
+        // Create category tag
+        const categoryTag = document.createElement('div');
+        categoryTag.className = 'transaction-category';
+        categoryTag.textContent = category;
+        categoryTag.style.backgroundColor = `${iconColor}20`; // 20 is hex for 12% opacity
+        categoryTag.style.color = iconColor;
+        
+        // Assemble transaction item
+        content.appendChild(title);
+        content.appendChild(amount);
+        content.appendChild(date);
+        content.appendChild(categoryTag);
+        
+        transactionItem.appendChild(icon);
+        transactionItem.appendChild(content);
+        
+        return transactionItem;
+    };
+
+    // Override the updateTransactions function if it's called from script.js
+    window.updateTransactionsList = function(transactions) {
+        const transactionsList = document.getElementById('transactionsList');
+        if (!transactionsList) return;
+        
+        console.log('Updating transactions list with:', transactions);
+        
+        // Clear list
+        transactionsList.innerHTML = '';
+        
+        // Add transactions
+        if (transactions && transactions.length > 0) {
+            // Sort transactions by date, newest first
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display up to 10 most recent transactions
+            const recentTransactions = transactions.slice(0, 10);
+            
+            // Log categories for debugging
+            console.log('Transaction categories:', recentTransactions.map(t => t.category));
+            
+            recentTransactions.forEach(transaction => {
+                // Ensure category exists
+                if (!transaction.category) {
+                    transaction.category = transaction.type || 'Miscellaneous';
+                    console.log('Added missing category:', transaction.category);
+                }
+                
+                const transactionElement = window.renderTransaction(transaction);
+                transactionsList.appendChild(transactionElement);
+            });
+        } else {
+            // Show message if no transactions
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-transactions';
+            emptyMessage.textContent = 'No transactions to display';
+            transactionsList.appendChild(emptyMessage);
+        }
+    };
+
+    // Sample transactions data for testing
+    const sampleTransactions = [
+        {
+            id: 1,
+            title: 'Grocery Shopping',
+            amount: -1250.00,
+            date: '2023-04-05',
+            category: 'Groceries'
+        },
+        {
+            id: 2,
+            title: 'Monthly Salary',
+            amount: 45000.00,
+            date: '2023-04-01',
+            category: 'Salary'
+        },
+        {
+            id: 3,
+            title: 'Restaurant Dinner',
+            amount: -850.00,
+            date: '2023-04-03',
+            category: 'Eating_Out'
+        },
+        {
+            id: 4,
+            title: 'Electricity Bill',
+            amount: -1350.00,
+            date: '2023-04-02',
+            category: 'Utilities'
+        },
+        {
+            id: 5,
+            title: 'Movie Tickets',
+            amount: -500.00,
+            date: '2023-04-04',
+            category: 'Entertainment'
+        },
+        {
+            id: 6,
+            title: 'Monthly Rent',
+            amount: -12000.00,
+            date: '2023-04-01',
+            category: 'Rent'
+        },
+        {
+            id: 7,
+            title: 'New Shirt',
+            amount: -899.00,
+            date: '2023-04-03',
+            category: 'Clothing'
+        },
+        {
+            id: 8,
+            title: 'Netflix Subscription',
+            amount: -649.00,
+            date: '2023-04-02',
+            category: 'Subscriptions'
+        },
+        {
+            id: 9,
+            title: 'Mobile Recharge',
+            amount: -399.00,
+            date: '2023-04-04',
+            category: 'Phone'
+        },
+        {
+            id: 10,
+            title: 'Gym Membership',
+            amount: -1500.00,
+            date: '2023-04-01',
+            category: 'Fitness'
+        }
+    ];
+
+    // Add test data on page load if no transactions exist
+    document.addEventListener('DOMContentLoaded', function() {
+        // For testing purposes, we'll reset the transactions to our sample data
+        // Comment this out in production
+        localStorage.setItem('transactions', JSON.stringify(sampleTransactions));
+        
+        // Check if there are existing transactions in localStorage
+        const storedTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        
+        // Use stored transactions
+        window.updateTransactionsList(storedTransactions);
+    });
+    </script>
+
+    <!-- Initialize needs-wants breakdown and savings pet functionality -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Savings goal functionality
+        const savingsInput = document.getElementById('savingsInput');
+        const saveSavingsBtn = document.getElementById('saveSavings');
+        const savingsValue = document.getElementById('savingsValue');
+        const savingsInputContainer = document.getElementById('savingsInputContainer');
+        
+        // Initialize savings goal from localStorage
+        const savedGoal = localStorage.getItem('savingsGoal');
+        if (savedGoal) {
+            savingsValue.textContent = `₹${parseInt(savedGoal).toLocaleString()}`;
+            savingsValue.style.display = 'inline-block';
+            savingsInputContainer.style.display = 'none';
+        }
+        
+        // Save savings goal
+        saveSavingsBtn.addEventListener('click', function() {
+            const goal = savingsInput.value;
+            if (goal && !isNaN(goal) && goal > 0) {
+                localStorage.setItem('savingsGoal', goal);
+                savingsValue.textContent = `₹${parseInt(goal).toLocaleString()}`;
+                savingsValue.style.display = 'inline-block';
+                savingsInputContainer.style.display = 'none';
+                savingsInput.value = '';
+                
+                // Update savings progress
+                updateSavingsProgress();
+            }
+        });
+        
+        // Edit savings goal by clicking on the value
+        savingsValue.addEventListener('click', function() {
+            savingsValue.style.display = 'none';
+            savingsInputContainer.style.display = 'flex';
+            savingsInput.value = localStorage.getItem('savingsGoal') || '';
+            savingsInput.focus();
+        });
+        
+        // Savings Pet Modal
+        const savingsPetBtn = document.getElementById('savingsPetBtn');
+        const savingsPetModal = document.getElementById('savingsPetModal');
+        const closePetModal = document.querySelector('.close-pet-modal');
+        
+        savingsPetBtn.addEventListener('click', function() {
+            updateSavingsPet();
+            savingsPetModal.style.display = 'block';
+        });
+        
+        closePetModal.addEventListener('click', function() {
+            savingsPetModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == savingsPetModal) {
+                savingsPetModal.style.display = 'none';
+            }
+        });
+        
+        // Function to update savings pet based on progress
+        function updateSavingsPet() {
+            const savingsGoal = parseFloat(localStorage.getItem('savingsGoal') || 0);
+            const currentSavings = getCurrentSavings();
+            let progressPercent = 0;
+            
+            if (savingsGoal > 0) {
+                progressPercent = Math.min(Math.round((currentSavings / savingsGoal) * 100), 100);
+            }
+            
+            // Update progress display
+            document.getElementById('currentSavingsValue').textContent = `₹${currentSavings.toLocaleString()}`;
+            document.getElementById('savingsProgressPercent').textContent = `${progressPercent}%`;
+            
+            // Select cat image based on progress
+            let imageUrl = '';
+            let message = '';
+            
+            if (progressPercent < 25) {
+                imageUrl = 'cat_sad.jpg';
+                message = "Your savings pet is feeling a bit sad. Save more to cheer it up!";
+            } else if (progressPercent < 50) {
+                imageUrl = 'cat_neutral.jpg';
+                message = "Your savings pet is doing okay, but could be happier with more savings!";
+            } else if (progressPercent < 75) {
+                imageUrl = 'cat_happy.jpg';
+                message = "Your savings pet is feeling pretty good! Keep it up!";
+            } else {
+                imageUrl = 'cat_very_happy.jpg';
+                message = "Your savings pet is extremely happy with your savings progress!";
+            }
+            
+            // Update image and message
+            document.getElementById('savingsPetImage').src = imageUrl;
+            document.getElementById('savingsPetMessage').textContent = message;
+        }
+        
+        // Function to get current savings from the profile data
+        function getCurrentSavings() {
+            // This should match the calculation used in your existing code
+            // For now, we'll use a simulated value
+            const profileData = window.profileData || {};
+            const totalExpenses = profileData.expenses ? 
+                Object.values(profileData.expenses).reduce((a, b) => a + b, 0) : 0;
+            return (profileData.income || 0) - totalExpenses;
+        }
+        
+        // Function to update savings progress bar
+        function updateSavingsProgress() {
+            const savingsGoal = parseFloat(localStorage.getItem('savingsGoal') || 0);
+            if (savingsGoal > 0) {
+                const currentSavings = getCurrentSavings();
+                const progressPercent = Math.min((currentSavings / savingsGoal) * 100, 100);
+                document.getElementById('savingsBar').style.width = `${progressPercent}%`;
+                document.getElementById('savingsValue').textContent = 
+                    `₹${currentSavings.toLocaleString()} / ₹${savingsGoal.toLocaleString()}`;
+            }
+        }
+    });
     </script>
 </body>
 </html>
