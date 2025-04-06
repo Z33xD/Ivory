@@ -26,7 +26,7 @@
             </div>
         </header>
 
-        <!-- Add this after the header-right div -->
+        <!-- Notifications Dropdown -->
         <div class="notifications-dropdown" id="notificationsDropdown">
             <div class="notifications-header">
                 <h3>Notifications</h3>
@@ -120,7 +120,16 @@
 
     <!-- Floating Chatbot Bubble -->
     <div class="chatbot-bubble" id="chatbotBubble">
-        <div class="bubble-icon">💬</div>
+        <span class="chat-notification">1</span>
+        <div class="bubble-icon">
+            <div class="robot-face">
+                <div class="robot-eyes">
+                    <div class="robot-eye"></div>
+                    <div class="robot-eye"></div>
+                </div>
+                <div class="robot-mouth"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Chatbot Popup Window -->
@@ -212,28 +221,155 @@
         /* Add these styles to your existing CSS */
         .chatbot-bubble {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: var(--primary-color);
+            bottom: 25px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(145deg, #6B5CFF, #4B36E9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(107, 92, 255, 0.4), 
+                        0 0 0 rgba(75, 54, 233, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
+            overflow: hidden;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .chatbot-bubble::after {
+            content: 'Get Financial Advice';
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
         }
 
         .chatbot-bubble:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(107, 92, 255, 0.5), 
+                        0 0 20px rgba(75, 54, 233, 0.3);
+        }
+
+        .chatbot-bubble:hover::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chatbot-bubble:active {
+            transform: scale(0.95);
         }
 
         .bubble-icon {
-            font-size: 24px;
+            position: relative;
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Animated robot face icon */
+        .robot-face {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
+        }
+
+        .robot-eyes {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .robot-eye {
+            width: 6px;
+            height: 6px;
+            background: #4B36E9;
+            border-radius: 50%;
+            animation: blink 3s infinite;
+        }
+
+        .robot-mouth {
+            height: 3px;
+            background: #4B36E9;
+            margin-top: 4px;
+            border-radius: 3px;
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            animation: speak 1.5s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 4px 15px rgba(107, 92, 255, 0.4), 
+                            0 0 0 rgba(75, 54, 233, 0);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(107, 92, 255, 0.4), 
+                            0 0 20px rgba(75, 54, 233, 0.4);
+            }
+        }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        @keyframes speak {
+            0%, 100% {
+                width: 50%;
+            }
+            50% {
+                width: 70%;
+            }
+        }
+
+        /* New notification badge on chatbot */
+        .chat-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF4E50;
             color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+            animation: bounce 0.6s infinite alternate;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-3px);
+            }
         }
 
         .chatbot-popup {
@@ -395,59 +531,65 @@
         }
 
         .menu-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            color: #333;
-            z-index: 1002;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
             width: 40px;
             height: 40px;
-            line-height: 1;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
         }
 
         .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+            background-color: var(--secondary-color);
         }
 
         .menu-btn:active {
             transform: scale(0.95);
         }
 
-        .side-menu {
+        /* Make sure the side menu has proper z-index too */
+        #sideMenu {
             position: fixed;
             top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100vh;
-            background: white;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: left 0.3s ease;
-            padding-top: 60px;
-        }
-
-        .side-menu.show {
-            left: 0;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            left: -250px;
+            width: 250px;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        #sideMenu.active {
+            left: 0;
+        }
+
+        /* Overlay for when menu is open */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
         }
 
-        .overlay.show {
+        #overlay.active {
             display: block;
         }
 
@@ -611,6 +753,48 @@
             }
             to {
                 transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Typing indicator animation */
+        .typing-indicator {
+            width: auto !important;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            max-width: 110px !important;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 2px;
+            background-color: #9E9EA1;
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .typing-indicator span:nth-of-type(1) {
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-of-type(2) {
+            animation: typing 1s 0.33s infinite;
+        }
+
+        .typing-indicator span:nth-of-type(3) {
+            animation: typing 1s 0.66s infinite;
+        }
+
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0px);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-5px);
                 opacity: 1;
             }
         }
@@ -1061,333 +1245,460 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded - Initializing chatbot');
+            console.log('DOM Loaded - Initializing UI elements');
             
-            // Chatbot popup functionality
+            // Elements
             const chatbotBubble = document.getElementById('chatbotBubble');
             const chatbotPopup = document.getElementById('chatbotPopup');
-            const popupClose = document.getElementById('popupClose');
+            const chatMessages = document.getElementById('chatMessages');
             const chatInput = document.getElementById('chatInput');
             const sendBtn = document.getElementById('sendBtn');
-            const chatMessages = document.getElementById('chatMessages');
-
-            // Debug: Log all elements
-            console.log('Chatbot Elements:', {
-                bubble: chatbotBubble,
-                popup: chatbotPopup,
-                close: popupClose,
-                input: chatInput,
-                sendBtn: sendBtn,
-                messages: chatMessages
-            });
-
-            function toggleChatbot() {
-                console.log('Toggle chatbot called');
-                chatbotPopup.classList.toggle('show');
-                if (chatbotPopup.classList.contains('show')) {
-                    chatInput.focus();
-                }
-            }
-
-            function addMessage(text, sender) {
-                console.log('Adding message:', { text, sender });
-                
-                // Create message element
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('chat-message', sender);
-                messageDiv.textContent = text;
-                
-                // Add message to chat container
-                chatMessages.appendChild(messageDiv);
-                
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Debug: Log the created message
-                console.log('Message added to DOM:', messageDiv);
-            }
-
-            function sendMessage() {
-                const message = chatInput.value.trim();
-                if (!message) return;
-
-                console.log('Sending message:', message);
-                
-                // Clear input before adding message
-                chatInput.value = '';
-                
-                // Add user message
-                addMessage(message, 'user');
-                
-                // Simulate bot response
-                setTimeout(() => {
-                    addMessage("I'm here to help with your financial questions! How can I assist you today?", 'bot');
-                }, 1000);
-            }
-
-            // Add event listeners with error handling
-            try {
-                if (chatbotBubble) {
-                    chatbotBubble.addEventListener('click', function(e) {
-                        console.log('Bubble clicked');
-                        e.stopPropagation();
-                        toggleChatbot();
-                    });
-                } else {
-                    console.error('Chatbot bubble element not found');
-                }
-
-                if (popupClose) {
-                    popupClose.addEventListener('click', function(e) {
-                        console.log('Close button clicked');
-                        e.stopPropagation();
-                        toggleChatbot();
-                    });
-                } else {
-                    console.error('Close button element not found');
-                }
-
-                if (sendBtn) {
-                    sendBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        sendMessage();
-                    });
-                } else {
-                    console.error('Send button element not found');
-                }
-
-                if (chatInput) {
-                    chatInput.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            sendMessage();
-                        }
-                    });
-                } else {
-                    console.error('Chat input element not found');
-                }
-
-                // Close popup when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (chatbotPopup.classList.contains('show') && 
-                        !chatbotPopup.contains(e.target) && 
-                        !chatbotBubble.contains(e.target)) {
-                        toggleChatbot();
-                    }
-                });
-
-                // Initialize with a welcome message
-                addMessage("Hello! I'm your finance assistant. How can I help you manage your finances today?", 'bot');
-                
-                // Add suggested queries functionality
-                const suggestedQueries = document.getElementById('suggestedQueries');
-                const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
-                
-                queryBubbles.forEach(bubble => {
-                    bubble.addEventListener('click', function() {
-                        const query = this.textContent;
-                        chatInput.value = query;
-                        sendMessage();
-                    });
-                });
-                
-            } catch (error) {
-                console.error('Error initializing chatbot:', error);
-            }
-
-            // Menu functionality
+            const popupClose = document.getElementById('popupClose');
             const menuBtn = document.getElementById('menuBtn');
             const sideMenu = document.getElementById('sideMenu');
             const overlay = document.getElementById('overlay');
-            const menuClose = document.getElementById('menuClose');
-
-            function toggleMenu() {
-                console.log('Toggle menu called');
-                if (sideMenu && overlay) {
-                    sideMenu.classList.toggle('show');
-                    overlay.classList.toggle('show');
-                } else {
-                    console.error('Menu or overlay element not found');
+            const closeBtn = document.getElementById('closeBtn');
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsPanel = document.getElementById('notificationsPanel');
+            const clearNotificationsBtn = document.getElementById('clearNotificationsBtn');
+            
+            console.log('UI elements found:', {
+                chatbotBubble: !!chatbotBubble,
+                chatbotPopup: !!chatbotPopup,
+                menuBtn: !!menuBtn,
+                sideMenu: !!sideMenu,
+                notificationsBtn: !!notificationsBtn
+            });
+            
+            // Initialize notifications
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            let unreadCount = notifications.filter(n => !n.read).length;
+            
+            function updateNotificationBadge() {
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'flex' : 'none';
                 }
             }
-
-            // Add menu button event listener
+            
+            function renderNotifications() {
+                if (!notificationsPanel) return;
+                
+                notificationsPanel.innerHTML = '';
+                
+                if (notifications.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'notification-item empty';
+                    emptyMsg.textContent = 'No notifications';
+                    notificationsPanel.appendChild(emptyMsg);
+                    return;
+                }
+                
+                notifications.forEach((notification, index) => {
+                    const item = document.createElement('div');
+                    item.className = `notification-item ${notification.read ? 'read' : 'unread'}`;
+                    
+                    const title = document.createElement('div');
+                    title.className = 'notification-title';
+                    title.textContent = notification.title;
+                    
+                    const message = document.createElement('div');
+                    message.className = 'notification-message';
+                    message.textContent = notification.message;
+                    
+                    const time = document.createElement('div');
+                    time.className = 'notification-time';
+                    time.textContent = notification.time;
+                    
+                    item.appendChild(title);
+                    item.appendChild(message);
+                    item.appendChild(time);
+                    
+                    item.addEventListener('click', () => {
+                        if (!notification.read) {
+                            notification.read = true;
+                            unreadCount--;
+                            updateNotificationBadge();
+                            localStorage.setItem('notifications', JSON.stringify(notifications));
+                            item.classList.remove('unread');
+                            item.classList.add('read');
+                        }
+                    });
+                    
+                    notificationsPanel.appendChild(item);
+                });
+            }
+            
+            function addNotification(title, message) {
+                const notification = {
+                    title: title,
+                    message: message,
+                    time: new Date().toLocaleTimeString(),
+                    read: false
+                };
+                
+                notifications.unshift(notification);
+                unreadCount++;
+                updateNotificationBadge();
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                renderNotifications();
+                
+                return notification;
+            }
+            
+            // Initialize notification functionality
+            if (notificationsBtn) {
+                console.log('Setting up notifications button');
+                notificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (notificationsPanel) {
+                        notificationsPanel.classList.toggle('show');
+                        
+                        if (notificationsPanel.classList.contains('show')) {
+                            renderNotifications();
+                        }
+                    }
+                });
+            }
+            
+            if (clearNotificationsBtn) {
+                clearNotificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notifications.length = 0;
+                    unreadCount = 0;
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    updateNotificationBadge();
+                    renderNotifications();
+                });
+            }
+            
+            // Initialize menu functionality
+            function toggleMenu() {
+                if (!sideMenu || !overlay) {
+                    console.error('Menu elements not found');
+                    return;
+                }
+                
+                console.log('Toggling menu');
+                sideMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+            
             if (menuBtn) {
-                console.log('Adding click listener to menu button');
+                console.log('Setting up menu button');
                 menuBtn.addEventListener('click', function(e) {
                     console.log('Menu button clicked');
                     e.preventDefault();
                     e.stopPropagation();
                     toggleMenu();
                 });
-
-                // Add keyboard accessibility
+                
                 menuBtn.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === ' ') {
-                        console.log('Menu button activated via keyboard');
                         e.preventDefault();
                         toggleMenu();
                     }
                 });
-
-                // Make sure the button is focusable
-                menuBtn.setAttribute('tabindex', '0');
-                menuBtn.setAttribute('role', 'button');
-                menuBtn.setAttribute('aria-label', 'Open menu');
-            } else {
-                console.error('Menu button element not found');
             }
-
-            // Add menu close event listener
-            if (menuClose) {
-                console.log('Adding click listener to menu close button');
-                menuClose.addEventListener('click', function(e) {
-                    console.log('Menu close button clicked');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleMenu();
-                });
-            }
-
-            // Add overlay event listener
+            
             if (overlay) {
-                console.log('Adding click listener to overlay');
-                overlay.addEventListener('click', function(e) {
-                    console.log('Overlay clicked');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleMenu();
+                overlay.addEventListener('click', function() {
+                    sideMenu.classList.remove('active');
+                    overlay.classList.remove('active');
                 });
             }
-
-            // Initialize notifications
-            const notificationsBtn = document.getElementById('notificationsBtn');
-            const notificationsDropdown = document.getElementById('notificationsDropdown');
-            const notificationsList = document.getElementById('notificationsList');
-            const clearNotificationsBtn = document.getElementById('clearNotifications');
-            const notificationBadge = document.getElementById('notificationBadge');
-
-            let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            let unreadCount = notifications.filter(n => !n.read).length;
-
-            function updateNotificationBadge() {
-                if (notificationBadge) {
-                    notificationBadge.textContent = unreadCount;
-                    notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
-                }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    sideMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
             }
-
-            function addNotification(title, message, type = 'info') {
-                const notification = {
-                    id: Date.now(),
-                    title: title,
-                    message: message,
-                    type: type,
-                    timestamp: new Date().toISOString(),
-                    read: false
-                };
-
-                notifications.unshift(notification);
-                unreadCount++;
-                saveNotifications();
+            
+            // Initialize chatbot
+            if (chatbotBubble && chatbotPopup) {
+                console.log('Setting up chatbot');
+                chatbotBubble.addEventListener('click', function(e) {
+                    console.log('Chatbot bubble clicked');
+                    e.stopPropagation();
+                    chatbotPopup.classList.toggle('show');
+                });
+            }
+            
+            // Add test notification
+            setTimeout(() => {
+                addNotification('FinTrack AI Assistant', 'I can help you manage your finances! Click me to chat.');
                 updateNotificationBadge();
-                renderNotifications();
+            }, 2000);
+            
+            console.log('All functionality initialized');
+        });
+    </script>
+
+    <!-- Add Gemini AI Finance Chatbot API integration -->
+    <script>
+    // Gemini AI Finance Chatbot API integration
+    const FINANCE_CHATBOT_CONFIG = {
+        API_KEY: "AIzaSyDMQ0Tv2uyrDgPN7loV2Zg8cWMOAjSU0zM",
+        API_ENDPOINT: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        USE_MOCK_RESPONSES: true // Set to false when backend API is ready
+    };
+
+    // Function to generate Gemini AI response
+    async function generateAIResponse(message, userProfile = null) {
+        try {
+            console.log('generateAIResponse called with message:', message);
+            console.log('User profile:', userProfile);
+            
+            if (FINANCE_CHATBOT_CONFIG.USE_MOCK_RESPONSES) {
+                // Mock responses for testing
+                console.log('Using mock responses');
+                return await simulateAIResponse(message);
             }
 
-            function saveNotifications() {
-                localStorage.setItem('notifications', JSON.stringify(notifications));
+            // Build context from profile data if available
+            let context = "";
+            if (userProfile) {
+                context = `
+USER PROFILE:
+- Income: Rs.${userProfile.income || "N/A"}
+- Age: ${userProfile.age || "N/A"}
+- Dependents: ${userProfile.dependents || "N/A"}
+- Occupation: ${userProfile.occupation || "N/A"}
+
+EXPENSE ANALYSIS:
+${formatExpenseAnalysis(userProfile.expenses)}
+
+Based on this analysis, provide helpful financial advice.
+`;
             }
 
-            function renderNotifications() {
-                if (!notificationsList) return;
+            // Full prompt with user message
+            const prompt = `${context}
+You are a helpful and knowledgeable financial advisor chatbot. 
+Provide personalized financial advice based on the user's data and question.
+User question: ${message}`;
 
-                notificationsList.innerHTML = notifications.map(notification => `
-                    <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
-                        <span class="notification-icon">${getNotificationIcon(notification.type)}</span>
-                        <div class="notification-content">
-                            <div class="notification-title">${notification.title}</div>
-                            <div class="notification-message">${notification.message}</div>
-                            <div class="notification-time">${formatTime(notification.timestamp)}</div>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Add click handlers for notifications
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const id = parseInt(this.dataset.id);
-                        const notification = notifications.find(n => n.id === id);
-                        if (notification && !notification.read) {
-                            notification.read = true;
-                            unreadCount--;
-                            saveNotifications();
-                            updateNotificationBadge();
-                            this.classList.remove('unread');
-                        }
-                    });
-                });
-            }
-
-            function getNotificationIcon(type) {
-                const icons = {
-                    info: 'ℹ️',
-                    warning: '⚠️',
-                    success: '✅',
-                    error: '❌'
-                };
-                return icons[type] || icons.info;
-            }
-
-            function formatTime(timestamp) {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diff = now - date;
-
-                if (diff < 60000) return 'Just now';
-                if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-                if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-                return date.toLocaleDateString();
-            }
-
-            // Toggle notifications dropdown
-            if (notificationsBtn && notificationsDropdown) {
-                notificationsBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    notificationsDropdown.classList.toggle('show');
-                });
-            }
-
-            // Clear all notifications
-            if (clearNotificationsBtn) {
-                clearNotificationsBtn.addEventListener('click', function() {
-                    notifications = [];
-                    unreadCount = 0;
-                    saveNotifications();
-                    updateNotificationBadge();
-                    renderNotifications();
-                });
-            }
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (notificationsDropdown && 
-                    !notificationsDropdown.contains(e.target) && 
-                    !notificationsBtn.contains(e.target)) {
-                    notificationsDropdown.classList.remove('show');
-                }
+            console.log('Sending request to Gemini API');
+            // Call the Gemini API
+            const response = await fetch(`${FINANCE_CHATBOT_CONFIG.API_ENDPOINT}?key=${FINANCE_CHATBOT_CONFIG.API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.4,
+                        maxOutputTokens: 1024
+                    }
+                })
             });
 
-            // Initialize notifications
-            updateNotificationBadge();
-            renderNotifications();
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status}`);
+            }
 
-            // Example: Add a test notification
-            addNotification(
-                'Welcome to Finance Tracker',
-                'Start tracking your expenses and get personalized financial advice.',
-                'info'
-            );
+            const data = await response.json();
+            console.log('API response received:', data);
+            
+            // Extract text from the response (format depends on the API response structure)
+            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                               "I'm sorry, I couldn't generate a response at this time.";
+            
+            return responseText;
+        } catch (error) {
+            console.error("Error generating AI response:", error);
+            return "I apologize, but I'm having trouble connecting to my knowledge base. Let me provide some general advice instead.\n\nFor better financial management, consider following the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings and debt repayment.";
+        }
+    }
+
+    // Simulate AI response for testing
+    async function simulateAIResponse(message) {
+        console.log('Simulating AI response for:', message);
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const lowerMessage = message.toLowerCase();
+        
+        // Match keywords to provide relevant responses
+        if (lowerMessage.includes('budget') || lowerMessage.includes('plan')) {
+            return "Based on your financial profile, I recommend using the 50/30/20 rule for budgeting: allocate 50% of your income to needs, 30% to wants, and 20% to savings and debt repayment.\n\nI notice your current allocation is closer to 60% needs and 40% wants, with minimal savings. Consider reducing discretionary spending to increase your savings rate.";
+        } 
+        else if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
+            return "I see your potential for increased savings! Based on analysis of your spending patterns, you could save approximately Rs.2,000 more per month by optimizing your grocery spending (₹800) and entertainment expenses (₹300).\n\nConsider meal planning to reduce food waste and using subscription sharing for entertainment services.";
+        }
+        else if (lowerMessage.includes('invest') || lowerMessage.includes('investment')) {
+            return "With your current profile and risk tolerance, I recommend a balanced investment approach:\n\n1. First build an emergency fund of 3-6 months' expenses\n2. Consider index funds for long-term growth (60%)\n3. Add some fixed deposits for stability (30%)\n4. Explore high-quality corporate bonds (10%)\n\nThis balanced portfolio suits your age and financial goals.";
+        }
+        else if (lowerMessage.includes('debt') || lowerMessage.includes('loan')) {
+            return "I recommend prioritizing your debt repayment in this order:\n\n1. High-interest credit cards (focus here first)\n2. Personal loans\n3. Auto loans\n4. Low-interest student loans\n\nUsing the debt avalanche method (paying highest interest first) could save you approximately Rs.15,000 in interest over the repayment period.";
+        }
+        else if (lowerMessage.includes('retire') || lowerMessage.includes('retirement')) {
+            return "Based on your current age and savings rate, you're on track to reach about 60% of your retirement goal. To improve this:\n\n1. Increase your retirement contributions by at least 5%\n2. Diversify your retirement portfolio with a mix of equity and debt funds\n3. Consider tax-advantaged retirement accounts\n\nAim to save at least 15% of your income for retirement.";
+        }
+        else {
+            return "Based on your financial profile, I notice a few opportunities:\n\n1. Your spending on eating out is higher than average for your income bracket - you could save approximately Rs.350 (19.4%) monthly here\n\n2. Your savings rate is currently below the recommended 20% of income\n\n3. Consider building an emergency fund of 3-6 months of expenses if you haven't already\n\nWhat specific financial aspect would you like advice on?";
+        }
+    }
+
+    // Format expense analysis for the prompt
+    function formatExpenseAnalysis(expenses) {
+        console.log('Formatting expenses:', expenses);
+        if (!expenses) return "";
+        
+        let result = "Essential Expenses (Needs):\n";
+        for (const [category, amount] of Object.entries(expenses)) {
+            if (['Rent', 'Groceries', 'Utilities', 'Transport', 'groceries', 'utilities', 'transport'].includes(category)) {
+                result += `- ${category}: Rs.${amount}\n`;
+            }
+        }
+        
+        result += "\nDiscretionary Expenses (Wants):\n";
+        for (const [category, amount] of Object.entries(expenses)) {
+            if (['Entertainment', 'Eating_Out', 'Miscellaneous', 'entertainment', 'eating_out', 'miscellaneous'].includes(category)) {
+                result += `- ${category}: Rs.${amount}\n`;
+            }
+        }
+        
+        return result;
+    }
+    </script>
+
+    <!-- Restore chatbot functionality -->
+    <script>
+    if (popupClose) {
+        popupClose.addEventListener('click', function(e) {
+            console.log('Close button clicked');
+            e.stopPropagation();
+            chatbotPopup.classList.remove('show');
         });
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('click', function(e) {
+        if (chatbotPopup && 
+            chatbotPopup.classList.contains('show') && 
+            !chatbotPopup.contains(e.target) && 
+            !chatbotBubble.contains(e.target)) {
+            chatbotPopup.classList.remove('show');
+        }
+    });
+
+    // Make the AI response generator accessible
+    window.generateAIResponse = generateAIResponse;
+
+    // Chat functionality
+    function addMessage(text, sender) {
+        console.log(`Adding ${sender} message:`, text.substring(0, 50) + '...');
+        
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message', sender);
+        messageDiv.textContent = text;
+        
+        // Add message to chat container
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Typing indicator management
+    function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('chat-message', 'bot', 'typing-indicator');
+        typingIndicator.id = 'typingIndicator';
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return typingIndicator;
+    }
+
+    function hideTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator && indicator.parentNode) {
+            indicator.parentNode.removeChild(indicator);
+        }
+    }
+
+    // Main send message function
+    async function sendChatMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        console.log('Sending user message:', message);
+        
+        // Clear input before adding message
+        chatInput.value = '';
+        
+        // Add user message
+        addMessage(message, 'user');
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        try {
+            // Get user profile data
+            const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+            console.log('Using profile data:', profileData);
+            
+            // Get response from our AI function
+            console.log('Calling generateAIResponse...');
+            const aiResponse = await window.generateAIResponse(message, profileData);
+            console.log('AI response received:', aiResponse.substring(0, 50) + '...');
+            
+            // Hide typing indicator
+            hideTypingIndicator();
+            
+            // Add AI response
+            addMessage(aiResponse, 'bot');
+        } catch (error) {
+            console.error('Error in AI response generation:', error);
+            hideTypingIndicator();
+            addMessage("I apologize, but I'm having trouble processing your request. Please try again with a different question.", 'bot');
+        }
+    }
+
+    // Set up chatbot event listeners
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendChatMessage();
+        });
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
+
+    // Suggested queries functionality
+    const suggestedQueries = document.getElementById('suggestedQueries');
+    if (suggestedQueries) {
+        const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
+        queryBubbles.forEach(bubble => {
+            bubble.addEventListener('click', function() {
+                const query = this.textContent;
+                chatInput.value = query;
+                sendChatMessage();
+            });
+        });
+    }
+
+    // Clean out any pre-existing messages except the welcome message
+    while (chatMessages && chatMessages.children.length > 1) {
+        chatMessages.removeChild(chatMessages.lastChild);
+    }
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
