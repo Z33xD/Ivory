@@ -399,6 +399,9 @@ async function loadUserProfile() {
 
             // Update expense chart
             updateExpenseChart(profileData.expenses);
+
+            // Add nudges after updating the UI
+            addNudgesToNotifications(profileData);
         }
 
         // Update recent transactions
@@ -411,9 +414,98 @@ async function loadUserProfile() {
     }
 }
 
-// Initialize chart and load profile when page loads
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize menu functionality
+function initializeMenu() {
+    console.log('Initializing menu functionality');
+    
+    const menuBtn = document.getElementById('menuBtn');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuClose = document.getElementById('menuClose');
+
+    // Debug: Log menu elements
+    console.log('Menu Elements:', {
+        button: menuBtn,
+        menu: sideMenu,
+        overlay: overlay,
+        close: menuClose
+    });
+
+    function toggleMenu() {
+        console.log('Toggle menu called');
+        if (sideMenu && overlay) {
+            sideMenu.classList.toggle('open');
+            overlay.classList.toggle('active');
+            console.log('Menu state:', {
+                menuOpen: sideMenu.classList.contains('open'),
+                overlayActive: overlay.classList.contains('active')
+            });
+        } else {
+            console.error('Menu or overlay element not found');
+        }
+    }
+
+    // Add menu button event listener
+    if (menuBtn) {
+        console.log('Adding click listener to menu button');
+        menuBtn.addEventListener('click', function(e) {
+            console.log('Menu button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Add keyboard accessibility
+        menuBtn.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                console.log('Menu button activated via keyboard');
+                e.preventDefault();
+                toggleMenu();
+            }
+        });
+
+        // Make sure the button is focusable
+        menuBtn.setAttribute('tabindex', '0');
+        menuBtn.setAttribute('role', 'button');
+        menuBtn.setAttribute('aria-label', 'Open menu');
+    } else {
+        console.error('Menu button element not found');
+    }
+
+    // Add menu close event listener
+    if (menuClose) {
+        console.log('Adding click listener to menu close button');
+        menuClose.addEventListener('click', function(e) {
+            console.log('Menu close button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+    }
+
+    // Add overlay event listener
+    if (overlay) {
+        console.log('Adding click listener to overlay');
+        overlay.addEventListener('click', function(e) {
+            console.log('Overlay clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+    }
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing all functionality');
+    
+    // Initialize menu
+    initializeMenu();
+    
+    // Initialize chart
     initializeChart();
+    
+    // Load user profile
     loadUserProfile();
 });
 
@@ -518,29 +610,6 @@ async function sendMessage() {
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        // Toggle side menu
-        const menuBtn = document.getElementById('menuBtn');
-        const menuClose = document.getElementById('menuClose');
-        const sideMenu = document.getElementById('sideMenu');
-        const overlay = document.getElementById('overlay');
-
-        menuBtn.addEventListener('click', function() {
-            sideMenu.classList.add('open');
-            overlay.classList.add('active');
-        });
-
-        function closeMenu() {
-            sideMenu.classList.remove('open');
-            overlay.classList.remove('active');
-        }
-
-        menuClose.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
-
-// Remove the updateChartData function that simulates dynamic data changes
-// We'll use real API data instead
-// Add these functions to your existing script.js file
 
 // Check if the user has opted out of financial tracking
 function isOptedOutOfTracking() {
@@ -976,3 +1045,228 @@ function displayTransactions(transactions) {
         transactionsList.innerHTML = '<div class="no-data">No recent transactions found</div>';
     }
 }
+
+// Add these functions for nudges
+function generateNudge(profileData) {
+    const totalExpenses = Object.values(profileData.expenses).reduce((a, b) => a + b, 0);
+    const needsCategories = ['groceries', 'utilities', 'transport', 'healthcare', 'education'];
+    const needsTotal = needsCategories.reduce((sum, category) => 
+        sum + (profileData.expenses[category] || 0), 0);
+    const wantsTotal = totalExpenses - needsTotal;
+    const savings = profileData.income - totalExpenses;
+    const savingsGoal = profileData.savings_goal || 0;
+
+    const nudges = [];
+
+    // Check spending patterns
+    if (wantsTotal > needsTotal) {
+        nudges.push({
+            title: 'High Discretionary Spending',
+            message: 'Your wants spending is higher than needs. Consider reviewing your discretionary expenses.',
+            type: 'warning'
+        });
+    }
+
+    // Check savings progress
+    if (savings < savingsGoal * 0.5) {
+        nudges.push({
+            title: 'Low Savings Rate',
+            message: `You're saving ${(savings / profileData.income * 100).toFixed(1)}% of your income. Consider increasing your savings rate.`,
+            type: 'warning'
+        });
+    }
+
+    // Check budget utilization
+    const monthlyBudget = profileData.income * 0.7;
+    if (totalExpenses > monthlyBudget * 0.9) {
+        nudges.push({
+            title: 'Approaching Budget Limit',
+            message: 'You\'re close to reaching your monthly budget. Review your spending to stay on track.',
+            type: 'warning'
+        });
+    }
+
+    // Check for potential savings
+    const highestExpense = Math.max(...Object.values(profileData.expenses));
+    const highestCategory = Object.keys(profileData.expenses).find(
+        key => profileData.expenses[key] === highestExpense
+    );
+    
+    if (highestExpense > profileData.income * 0.3) {
+        nudges.push({
+            title: 'High Spending Category',
+            message: `${formatCategoryName(highestCategory)} is your highest expense. Look for ways to optimize this category.`,
+            type: 'info'
+        });
+    }
+
+    return nudges;
+}
+
+function addNudgesToNotifications(profileData) {
+    const nudges = generateNudge(profileData);
+    nudges.forEach(nudge => {
+        if (typeof addNotification === 'function') {
+            addNotification(nudge.title, nudge.message, nudge.type);
+        }
+    });
+}
+
+// Initialize ML Integration
+let mlIntegration = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing chatbot');
+    
+    // Initialize ML Integration
+    mlIntegration = new MLIntegration();
+    mlIntegration.initialize().then(() => {
+        console.log('ML Integration initialized');
+    }).catch(error => {
+        console.error('Error initializing ML Integration:', error);
+    });
+    
+    // Chatbot popup functionality
+    const chatbotBubble = document.getElementById('chatbotBubble');
+    const chatbotPopup = document.getElementById('chatbotPopup');
+    const popupClose = document.getElementById('popupClose');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatMessages = document.getElementById('chatMessages');
+
+    // Debug: Log all elements
+    console.log('Chatbot Elements:', {
+        bubble: chatbotBubble,
+        popup: chatbotPopup,
+        close: popupClose,
+        input: chatInput,
+        sendBtn: sendBtn,
+        messages: chatMessages
+    });
+
+    function toggleChatbot() {
+        console.log('Toggle chatbot called');
+        chatbotPopup.classList.toggle('show');
+        if (chatbotPopup.classList.contains('show')) {
+            chatInput.focus();
+        }
+    }
+
+    function addMessage(text, sender) {
+        console.log('Adding message:', { text, sender });
+        
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message', sender);
+        
+        // Format the message text with line breaks
+        const formattedText = text.replace(/\n/g, '<br>');
+        messageDiv.innerHTML = formattedText;
+        
+        // Add message to chat container
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Debug: Log the created message
+        console.log('Message added to DOM:', messageDiv);
+    }
+
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        console.log('Sending message:', message);
+        
+        // Clear input before adding message
+        chatInput.value = '';
+        
+        // Add user message
+        addMessage(message, 'user');
+        
+        // Get ML-powered response
+        try {
+            const response = mlIntegration.getPersonalizedResponse(message);
+            addMessage(response, 'bot');
+        } catch (error) {
+            console.error('Error getting ML response:', error);
+            addMessage("I'm having trouble analyzing your request. Please try again later.", 'bot');
+        }
+    }
+
+    // Add event listeners with error handling
+    try {
+        if (chatbotBubble) {
+            chatbotBubble.addEventListener('click', function(e) {
+                console.log('Bubble clicked');
+                e.stopPropagation();
+                toggleChatbot();
+            });
+        } else {
+            console.error('Chatbot bubble element not found');
+        }
+
+        if (popupClose) {
+            popupClose.addEventListener('click', function(e) {
+                console.log('Close button clicked');
+                e.stopPropagation();
+                toggleChatbot();
+            });
+        } else {
+            console.error('Close button element not found');
+        }
+
+        if (sendBtn) {
+            sendBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+        } else {
+            console.error('Send button element not found');
+        }
+
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        } else {
+            console.error('Chat input element not found');
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', function(e) {
+            if (chatbotPopup.classList.contains('show') && 
+                !chatbotPopup.contains(e.target) && 
+                !chatbotBubble.contains(e.target)) {
+                toggleChatbot();
+            }
+        });
+
+        // Initialize with a welcome message
+        addMessage("Hello! I'm your finance assistant. I can help you with:\n" +
+                  "- Analyzing your spending patterns\n" +
+                  "- Finding potential savings\n" +
+                  "- Budget optimization\n" +
+                  "- Financial recommendations\n\n" +
+                  "What would you like to know about your finances?", 'bot');
+        
+        // Add suggested queries functionality
+        const suggestedQueries = document.getElementById('suggestedQueries');
+        const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
+        
+        queryBubbles.forEach(bubble => {
+            bubble.addEventListener('click', function() {
+                const query = this.textContent;
+                chatInput.value = query;
+                sendMessage();
+            });
+        });
+        
+    } catch (error) {
+        console.error('Error initializing chatbot:', error);
+    }
+});

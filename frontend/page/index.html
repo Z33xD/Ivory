@@ -12,7 +12,24 @@
         <header class="header">
             <button class="menu-btn" id="menuBtn">☰</button>
             <h1 class="app-title">Finance Tracker</h1>
+            <div class="header-right">
+                <button class="notifications-btn" id="notificationsBtn">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </button>
+            </div>
         </header>
+
+        <!-- Add this after the header-right div -->
+        <div class="notifications-dropdown" id="notificationsDropdown">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="clear-notifications" id="clearNotifications">Clear All</button>
+            </div>
+            <div class="notifications-list" id="notificationsList">
+                <!-- Notifications will be added here dynamically -->
+            </div>
+        </div>
 
         <!-- Left Sidebar - History -->
         <div class="history-sidebar" id="historySidebar">
@@ -100,6 +117,14 @@
                 Hello! I'm your finance assistant. How can I help you manage your finances today?
             </div>
         </div>
+        <div class="suggested-queries" id="suggestedQueries">
+            <div class="query-bubble">Maximize my savings</div>
+            <div class="query-bubble">Where could I save this month?</div>
+            <div class="query-bubble">Review my spending habits</div>
+            <div class="query-bubble">Set a budget plan</div>
+            <div class="query-bubble">Investment advice</div>
+            <div class="query-bubble">Track my expenses</div>
+        </div>
         <div class="popup-input">
             <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your finances...">
             <button class="chat-send-btn" id="sendBtn">→</button>
@@ -137,11 +162,6 @@
             <span>Savings Goals</span>
         </a>
         
-        <a href="#" class="menu-item">
-            <div class="menu-item-icon">🔔</div>
-            <span>Notifications</span>
-        </a>
-        
         <a href="opt_out.html" class="menu-item">
             <div class="menu-item-icon">⛔</div>
             <span>Opt Out of Financial Tracking</span>
@@ -159,63 +179,75 @@
             right: 20px;
             width: 60px;
             height: 60px;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, #ffdac1, #ff9a9e);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
             z-index: 1000;
+            animation: float 3s ease-in-out infinite;
         }
 
         .chatbot-bubble:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
         .bubble-icon {
-            font-size: 24px;
+            font-size: 28px;
             color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .chatbot-popup {
             position: fixed;
             bottom: 100px;
             right: 20px;
-            width: 350px;
+            width: 450px;
             height: 500px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             display: none;
             flex-direction: column;
             z-index: 1001;
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .popup-header {
             padding: 15px;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, #ffdac1, #ff9a9e);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
         }
 
         .popup-title {
             margin: 0;
             font-size: 1.2rem;
-            color: black;
+            color: #333;
+            font-weight: 600;
         }
 
         .popup-close {
             background: none;
             border: none;
-            color: white;
+            color: #333;
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0 5px;
+            transition: transform 0.2s;
+        }
+
+        .popup-close:hover {
+            transform: scale(1.1);
         }
 
         .popup-messages {
@@ -225,8 +257,34 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            background: #f9f9f9c3;
+            background: #f9f9f9;
             min-height: 200px;
+        }
+
+        .suggested-queries {
+            padding: 10px 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+
+        .query-bubble {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #ffdac1, #ff9a9e);
+            color: #333;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .query-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .popup-input {
@@ -234,32 +292,44 @@
             border-top: 1px solid #eee;
             display: flex;
             gap: 10px;
+            background: #fff;
         }
 
         .chat-input {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 25px;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #ffdac1;
+            box-shadow: 0 0 0 2px rgba(255, 218, 193, 0.2);
         }
 
         .chat-send-btn {
-            padding: 10px 15px;
-            background: var(--primary-color);
-            color: white;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ffdac1, #ff9a9e);
+            color: #333;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
         .chat-send-btn:hover {
-            background: var(--secondary-color);
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .chat-message {
             max-width: 80%;
-            padding: 10px 15px;
+            padding: 12px 16px;
             border-radius: 15px;
             line-height: 1.4;
             font-size: 0.9rem;
@@ -269,33 +339,41 @@
             transition: opacity 0.3s ease;
             position: relative;
             display: block;
-            border: 1px solid #ddd;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .chat-message.user {
-            background: #007bff;
-            color: white;
+            background: linear-gradient(135deg, #ffdac1, #ff9a9e);
+            color: #333;
             align-self: flex-end;
             border-bottom-right-radius: 5px;
             margin-left: auto;
             margin-right: 0;
             clear: both;
-            border: none;
         }
 
         .chat-message.bot {
-            background: #f1f1f1;
+            background: #f0f0f0;
             color: #333;
             align-self: flex-start;
             border-bottom-left-radius: 5px;
             margin-right: auto;
             margin-left: 0;
             clear: both;
-            border: 1px solid #ddd;
         }
 
-        /* Animation for popup */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateY(100%);
@@ -310,6 +388,227 @@
         .chatbot-popup.show {
             display: flex;
             animation: slideIn 0.3s ease-out;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            color: #333;
+            z-index: 1002;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            line-height: 1;
+        }
+
+        .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            padding-top: 60px;
+        }
+
+        .side-menu.show {
+            left: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #ffdac1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notifications-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            color: #333;
+        }
+
+        .notifications-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        /* Update existing styles */
+        .app-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .notifications-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notifications-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .clear-notifications {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .clear-notifications:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .notifications-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .notification-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 
@@ -434,9 +733,214 @@
                 // Initialize with a welcome message
                 addMessage("Hello! I'm your finance assistant. How can I help you manage your finances today?", 'bot');
                 
+                // Add suggested queries functionality
+                const suggestedQueries = document.getElementById('suggestedQueries');
+                const queryBubbles = suggestedQueries.querySelectorAll('.query-bubble');
+                
+                queryBubbles.forEach(bubble => {
+                    bubble.addEventListener('click', function() {
+                        const query = this.textContent;
+                        chatInput.value = query;
+                        sendMessage();
+                    });
+                });
+                
             } catch (error) {
                 console.error('Error initializing chatbot:', error);
             }
+
+            // Menu functionality
+            const menuBtn = document.getElementById('menuBtn');
+            const sideMenu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('overlay');
+            const menuClose = document.getElementById('menuClose');
+
+            function toggleMenu() {
+                console.log('Toggle menu called');
+                if (sideMenu && overlay) {
+                    sideMenu.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                } else {
+                    console.error('Menu or overlay element not found');
+                }
+            }
+
+            // Add menu button event listener
+            if (menuBtn) {
+                console.log('Adding click listener to menu button');
+                menuBtn.addEventListener('click', function(e) {
+                    console.log('Menu button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+
+                // Add keyboard accessibility
+                menuBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        console.log('Menu button activated via keyboard');
+                        e.preventDefault();
+                        toggleMenu();
+                    }
+                });
+
+                // Make sure the button is focusable
+                menuBtn.setAttribute('tabindex', '0');
+                menuBtn.setAttribute('role', 'button');
+                menuBtn.setAttribute('aria-label', 'Open menu');
+            } else {
+                console.error('Menu button element not found');
+            }
+
+            // Add menu close event listener
+            if (menuClose) {
+                console.log('Adding click listener to menu close button');
+                menuClose.addEventListener('click', function(e) {
+                    console.log('Menu close button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+            }
+
+            // Add overlay event listener
+            if (overlay) {
+                console.log('Adding click listener to overlay');
+                overlay.addEventListener('click', function(e) {
+                    console.log('Overlay clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+            }
+
+            // Initialize notifications
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const notificationsList = document.getElementById('notificationsList');
+            const clearNotificationsBtn = document.getElementById('clearNotifications');
+            const notificationBadge = document.getElementById('notificationBadge');
+
+            let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            let unreadCount = notifications.filter(n => !n.read).length;
+
+            function updateNotificationBadge() {
+                if (notificationBadge) {
+                    notificationBadge.textContent = unreadCount;
+                    notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+                }
+            }
+
+            function addNotification(title, message, type = 'info') {
+                const notification = {
+                    id: Date.now(),
+                    title: title,
+                    message: message,
+                    type: type,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                };
+
+                notifications.unshift(notification);
+                unreadCount++;
+                saveNotifications();
+                updateNotificationBadge();
+                renderNotifications();
+            }
+
+            function saveNotifications() {
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+            }
+
+            function renderNotifications() {
+                if (!notificationsList) return;
+
+                notificationsList.innerHTML = notifications.map(notification => `
+                    <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+                        <span class="notification-icon">${getNotificationIcon(notification.type)}</span>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatTime(notification.timestamp)}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click handlers for notifications
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        const notification = notifications.find(n => n.id === id);
+                        if (notification && !notification.read) {
+                            notification.read = true;
+                            unreadCount--;
+                            saveNotifications();
+                            updateNotificationBadge();
+                            this.classList.remove('unread');
+                        }
+                    });
+                });
+            }
+
+            function getNotificationIcon(type) {
+                const icons = {
+                    info: 'ℹ️',
+                    warning: '⚠️',
+                    success: '✅',
+                    error: '❌'
+                };
+                return icons[type] || icons.info;
+            }
+
+            function formatTime(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = now - date;
+
+                if (diff < 60000) return 'Just now';
+                if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+                if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+                return date.toLocaleDateString();
+            }
+
+            // Toggle notifications dropdown
+            if (notificationsBtn && notificationsDropdown) {
+                notificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationsDropdown.classList.toggle('show');
+                });
+            }
+
+            // Clear all notifications
+            if (clearNotificationsBtn) {
+                clearNotificationsBtn.addEventListener('click', function() {
+                    notifications = [];
+                    unreadCount = 0;
+                    saveNotifications();
+                    updateNotificationBadge();
+                    renderNotifications();
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (notificationsDropdown && 
+                    !notificationsDropdown.contains(e.target) && 
+                    !notificationsBtn.contains(e.target)) {
+                    notificationsDropdown.classList.remove('show');
+                }
+            });
+
+            // Initialize notifications
+            updateNotificationBadge();
+            renderNotifications();
+
+            // Example: Add a test notification
+            addNotification(
+                'Welcome to Finance Tracker',
+                'Start tracking your expenses and get personalized financial advice.',
+                'info'
+            );
         });
     </script>
 </body>
